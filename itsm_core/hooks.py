@@ -80,14 +80,10 @@ fixtures = [
             ]]],
     },
     {
-        "dt": "Workspace",
-        "filters": [["name", "=", "it_operations"]],
-    },
-    {
-        "dt": "Dashboard Chart",
-        "filters": [["module", "=", "IT Operations"]],
-    },
-]
+            "dt": "Dashboard Chart",
+            "filters": [["module", "=", "ITSM Core"]],
+        },
+    ]
 
 add_to_apps_screen = [
     {
