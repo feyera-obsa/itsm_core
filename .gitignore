@@ -1,17 +1,16 @@
-# Python cache
+# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# Node modules
-node_modules/
+*.pyc
 
 # Virtual environments
 .venv/
 venv/
 env/
 .env
+.venv-adr/
 
 # IDE
 .vscode/
@@ -43,3 +42,7 @@ build/
 # Local settings
 local.py
 settings_local.py
+
+# Frappe specific
+sites/*/private/backups/
+sites/*/private/files/

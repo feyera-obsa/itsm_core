@@ -1,74 +1,83 @@
 [
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": "remove",
-  "modified": "2026-07-14 12:22:40.354257",
-  "name": "Rejected",
-  "style": "Danger",
-  "workflow_state_name": "Rejected"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": null,
-  "modified": "2026-10-21 09:32:14.907884",
-  "name": "Draft",
-  "style": "",
-  "workflow_state_name": "Draft"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": null,
-  "modified": "2026-10-21 09:32:14.936011",
-  "name": "Risk Assessment",
-  "style": "",
-  "workflow_state_name": "Risk Assessment"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": null,
-  "modified": "2026-10-21 09:32:14.937062",
-  "name": "Pending Approval",
-  "style": "",
-  "workflow_state_name": "Pending Approval"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": null,
-  "modified": "2026-10-21 09:32:14.938597",
-  "name": "Approved for Deployment",
-  "style": "",
-  "workflow_state_name": "Approved for Deployment"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": null,
-  "modified": "2026-10-21 09:32:14.939793",
-  "name": "Implemented",
-  "style": "",
-  "workflow_state_name": "Implemented"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": null,
-  "modified": "2026-10-21 09:32:14.940952",
-  "name": "Post-Implementation Review",
-  "style": "",
-  "workflow_state_name": "Post-Implementation Review"
- },
- {
-  "docstatus": 0,
-  "doctype": "Workflow State",
-  "icon": null,
-  "modified": "2026-10-21 09:32:14.942058",
-  "name": "Closed",
-  "style": "",
-  "workflow_state_name": "Closed"
- }
+  {
+    "docstatus": 0,
+    "doctype": "Workflow State",
+    "icon": "remove",
+    "modified": "2026-07-14 12:22:40.354257",
+    "name": "Rejected",
+    "style": "Danger",
+    "workflow_state_name": "Rejected"
+  },
+  {
+    "docstatus": 0,
+    "doctype": "Workflow State",
+    "icon": null,
+    "modified": "2026-10-21 09:32:14.907884",
+    "name": "Draft",
+    "style": "",
+    "workflow_state_name": "Draft"
+  },
+  {
+    "docstatus": 0,
+    "doctype": "Workflow State",
+    "icon": null,
+    "modified": "2026-10-21 09:32:14.936011",
+    "name": "Risk Assessment",
+    "style": "",
+    "workflow_state_name": "Risk Assessment"
+  },
+  {
+    "docstatus": 0,
+    "doctype": "Workflow State",
+    "icon": null,
+    "modified": "2026-10-21 09:32:14.937062",
+    "name": "Pending Approval",
+    "style": "",
+    "workflow_state_name": "Pending Approval"
+  },
+  {
+    "docstatus": 0,
+    "doctype": "Workflow State",
+    "icon": null,
+    "modified": "2026-10-21 09:32:14.938597",
+    "name": "Approved for Deployment",
+    "style": "",
+    "workflow_state_name": "Approved for Deployment"
+  },
+  {
+    "docstatus": 0,
+    "doctype": "Workflow State",
+    "icon": null,
+    "modified": "2026-10-21 09:32:14.939793",
+    "name": "Implemented",
+    "style": "",
+    "workflow_state_name": "Implemented"
+  },
+  {
+    "docstatus": 0,
+    "doctype": "Workflow State",
+    "icon": null,
+    "modified": "2026-10-21 09:32:14.940952",
+    "name": "Post-Implementation Review",
+    "style": "",
+    "workflow_state_name": "Post-Implementation Review"
+  },
+  {
+    "docstatus": 0,
+    "doctype": "Workflow State",
+    "icon": null,
+    "modified": "2026-10-21 09:32:14.942058",
+    "name": "Closed",
+    "style": "",
+    "workflow_state_name": "Closed"
+  },
+  {
+    "docstatus": 0,
+    "doctype": "Workflow State",
+    "icon": "check",
+    "modified": "2026-10-23 14:00:00.000000",
+    "name": "Auto-Resolved",
+    "style": "Success",
+    "workflow_state_name": "Auto-Resolved"
+  }
 ]

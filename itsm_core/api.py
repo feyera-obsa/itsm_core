@@ -387,7 +387,6 @@ def replay_webhook(webhook_log_name):
     except json.JSONDecodeError:
         frappe.local.response.http_status_code = 400
         return {"status": "error", "message": "Stored payload is not valid JSON"}
-    result = ingest_grafana_alert() if False else None
     # Re-run _process_alert for each alert in the stored payload.
     alerts = payload.get("alerts") or [payload]
     results = []

@@ -1,1 +1,97 @@
-[]
+[
+  {
+    "default_priority": "Critical",
+    "service_level": "SLA - Critical",
+    "enabled": 1,
+    "apply_sla_for_resolution": 1,
+    "priorities": [
+      {
+        "priority": "Urgent",
+        "response_by": 1,
+        "resolution_by": 4
+      },
+      {
+        "priority": "High",
+        "response_by": 4,
+        "resolution_by": 8
+      }
+    ],
+    "default_ticket_status": "Open",
+    "ticket_reopen_status": "Reopened",
+    "status": "Active",
+    "modified": "2026-10-23 14:00:00.000000",
+    "name": "SLA - Critical",
+    "docstatus": 0,
+    "doctype": "HD Service Level Agreement"
+  },
+  {
+    "default_priority": "High",
+    "service_level": "SLA - High",
+    "enabled": 1,
+    "apply_sla_for_resolution": 1,
+    "priorities": [
+      {
+        "priority": "High",
+        "response_by": 4,
+        "resolution_by": 8
+      },
+      {
+        "priority": "Medium",
+        "response_by": 8,
+        "resolution_by": 24
+      }
+    ],
+    "default_ticket_status": "Open",
+    "ticket_reopen_status": "Reopened",
+    "status": "Active",
+    "modified": "2026-10-23 14:00:00.000000",
+    "name": "SLA - High",
+    "docstatus": 0,
+    "doctype": "HD Service Level Agreement"
+  },
+  {
+    "default_priority": "Medium",
+    "service_level": "SLA - Medium",
+    "enabled": 1,
+    "apply_sla_for_resolution": 1,
+    "priorities": [
+      {
+        "priority": "Medium",
+        "response_by": 8,
+        "resolution_by": 24
+      },
+      {
+        "priority": "Low",
+        "response_by": 24,
+        "resolution_by": 48
+      }
+    ],
+    "default_ticket_status": "Open",
+    "ticket_reopen_status": "Reopened",
+    "status": "Active",
+    "modified": "2026-10-23 14:00:00.000000",
+    "name": "SLA - Medium",
+    "docstatus": 0,
+    "doctype": "HD Service Level Agreement"
+  },
+  {
+    "default_priority": "Low",
+    "service_level": "SLA - Low",
+    "enabled": 1,
+    "apply_sla_for_resolution": 1,
+    "priorities": [
+      {
+        "priority": "Low",
+        "response_by": 24,
+        "resolution_by": 48
+      }
+    ],
+    "default_ticket_status": "Open",
+    "ticket_reopen_status": "Reopened",
+    "status": "Active",
+    "modified": "2026-10-23 14:00:00.000000",
+    "name": "SLA - Low",
+    "docstatus": 0,
+    "doctype": "HD Service Level Agreement"
+  }
+]

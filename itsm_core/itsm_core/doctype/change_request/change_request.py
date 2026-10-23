@@ -32,14 +32,32 @@ class ChangeRequest(Document):
         self._derive_risk_level()
         self._lock_fields_after_approval()
 
+    def on_submit(self):
+        """Called when document is submitted."""
+        if self.workflow_state == "Approved for Deployment" and not self.approved_by:
+            self.db_set("approved_by", frappe.session.user, update_modified=False)
+
+    def on_cancel(self):
+        """Called when document is cancelled."""
+        # Clear approval fields when cancelled
+        if self.approved_by:
+            self.db_set("approved_by", None, update_modified=False)
+        if self.emergency_authorized_by:
+            self.db_set("emergency_authorized_by", None, update_modified=False)
+        if self.retro_review_due:
+            self.db_set("retro_review_due", None, update_modified=False)
+
+    def on_trash(self):
+        """Called when document is deleted - clean up child table."""
+        # The child table 'affected_services' will be auto-deleted by Frappe
+        # since it's a Table field with istable=1. No manual cleanup needed.
+        pass
+
     def _compute_risk_score(self):
         impact_map = {"1 - Low": 1, "2 - Medium": 2, "3 - High": 3, "4 - Critical": 4}
         likelihood_map = {
-            "1 - Rare": 1,
-            "2 - Unlikely": 2,
-            "3 - Possible": 3,
-            "4 - Likely": 4,
-            "5 - Certain": 5,
+            "1 - Rare": 1, "2 - Unlikely": 2, "3 - Possible": 3,
+            "4 - Likely": 4, "5 - Certain": 5,
         }
         impact = impact_map.get(self.impact, 0)
         likelihood = likelihood_map.get(self.likelihood, 0)
@@ -62,18 +80,34 @@ class ChangeRequest(Document):
         old = self.get_doc_before_save()
         if not old:
             return
-        if old.workflow_state in ("Approved for Deployment", "Implemented", "Closed", "Rejected"):
-            locked_simple = ["title", "justification", "implementation_steps",
-                "rollback_plan", "validation_criteria", "repo", "scheduled_window"]
+        if old.workflow_state in (
+            "Approved for Deployment", "Implemented", "Closed", "Rejected"
+        ):
+            locked_simple = [
+                "title", "justification", "implementation_steps",
+                "rollback_plan", "validation_criteria", "repo",
+                "scheduled_window",
+            ]
             for field in locked_simple:
                 if self.get(field) != old.get(field):
-                    frappe.throw(_("Field {0} is locked after approval").format(field))
-            old_children = sorted([dict(c) for c in (old.affected_services or [])],
-                key=lambda r: r.get("name") or r.get("service"))
-            new_children = sorted([dict(c) for c in (self.affected_services or [])],
-                key=lambda r: r.get("name") or r.get("service"))
+                    frappe.throw(
+                        _("Field {0} is locked after approval").format(field)
+                    )
+            def get_sort_key(row):
+                return (row.get("name") or "") + (row.get("service") or "")
+            
+            old_children = sorted(
+                [dict(c) for c in (old.affected_services or [])],
+                key=get_sort_key,
+            )
+            new_children = sorted(
+                [dict(c) for c in (self.affected_services or [])],
+                key=get_sort_key,
+            )
             if old_children != new_children:
-                frappe.throw(_("Affected Services is locked after approval"))
+                frappe.throw(
+                    _("Affected Services is locked after approval")
+                )
 
     def on_update(self):
         if self.workflow_state == "Approved for Deployment" and not self.approved_by:
