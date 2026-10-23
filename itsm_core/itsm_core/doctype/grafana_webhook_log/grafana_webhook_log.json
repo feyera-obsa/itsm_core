@@ -1,0 +1,47 @@
+{
+    "doctype": "DocType",
+    "name": "Grafana Webhook Log",
+    "module": "ITSM Core",
+    "custom": 0,
+    "track_changes": 1,
+    "fields": [
+        {
+            "fieldname": "payload",
+            "label": "Payload",
+            "fieldtype": "Code",
+            "reqd": 1
+        },
+        {
+            "fieldname": "error",
+            "label": "Error",
+            "fieldtype": "Text"
+        },
+        {
+            "fieldname": "received_at",
+            "label": "Received At",
+            "fieldtype": "Datetime",
+            "reqd": 1
+        },
+        {
+            "fieldname": "replay",
+            "label": "Replay",
+            "fieldtype": "Check",
+            "default": "0"
+        }
+    ],
+    "permissions": [
+        {
+            "role": "System Manager",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1
+        },
+        {
+            "role": "Grafana Integration",
+            "read": 1,
+            "write": 1,
+            "create": 1
+        }
+    ]
+}

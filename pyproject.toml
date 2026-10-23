@@ -1,0 +1,17 @@
+[project]
+name = "itsm_core"
+version = "1.0.0"
+description = "Unified ITSM workflow for ERPNext v16"
+requires-python = ">=3.14"
+readme = "README.md"
+dependencies = []
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.dev-dependencies]
+
+[tool.ruff]
+line-length = 110
+target-version = "py314"

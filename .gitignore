@@ -1,0 +1,45 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Node modules
+node_modules/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+*.out
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# Testing
+.coverage
+.pytest_cache/
+
+# Database
+*.sqlite
+*.db
+
+# Local settings
+local.py
+settings_local.py

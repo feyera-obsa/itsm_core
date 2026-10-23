@@ -1,0 +1,44 @@
+{
+    "doctype": "DocType",
+    "name": "ITSM Settings",
+    "module": "ITSM Core",
+    "custom": 0,
+    "issingle": 1,
+    "fields": [
+        {
+            "fieldname": "severity_priority_map",
+            "label": "Severity to Priority Map",
+            "fieldtype": "Table",
+            "options": "ITSM Settings Severity Priority Row",
+            "reqd": 1
+        },
+        {
+            "fieldname": "grafana_integration_user",
+            "label": "Grafana Integration User",
+            "fieldtype": "Link",
+            "options": "User",
+            "description": "Dedicated API-token user for Grafana webhook authentication"
+        },
+        {
+            "fieldname": "ci_integration_user",
+            "label": "CI Integration User",
+            "fieldtype": "Link",
+            "options": "User",
+            "description": "Dedicated API-token user for CI gate / deployment methods"
+        },
+        {
+            "fieldname": "default_reopen_window_hours",
+            "label": "Default Reopen Window (hours)",
+            "fieldtype": "Int",
+            "default": "24",
+            "description": "Fallback reopen window when Service Registry has none"
+        }
+    ],
+    "permissions": [
+        {
+            "role": "System Manager",
+            "read": 1,
+            "write": 1
+        }
+    ]
+}

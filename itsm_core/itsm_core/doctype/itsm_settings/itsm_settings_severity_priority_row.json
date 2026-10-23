@@ -1,0 +1,26 @@
+{
+    "doctype": "DocType",
+    "name": "ITSM Settings Severity Priority Row",
+    "module": "ITSM Core",
+    "custom": 0,
+    "istable": 1,
+    "fields": [
+        {
+            "fieldname": "severity",
+            "label": "Grafana Severity",
+            "fieldtype": "Select",
+            "options": "critical\nwarning\ninfo",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "priority",
+            "label": "HD Ticket Priority",
+            "fieldtype": "Link",
+            "options": "HD Ticket Priority",
+            "reqd": 1,
+            "in_list_view": 1
+        }
+    ],
+    "permissions": []
+}

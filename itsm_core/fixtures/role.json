@@ -1,0 +1,80 @@
+[
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-10-20 15:29:01.683865",
+  "name": "Change Manager",
+  "restrict_to_domain": null,
+  "role_name": "Change Manager",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-10-20 15:29:01.754840",
+  "name": "Change Requester",
+  "restrict_to_domain": null,
+  "role_name": "Change Requester",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-10-20 15:29:01.757008",
+  "name": "Change Approver",
+  "restrict_to_domain": null,
+  "role_name": "Change Approver",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-10-20 15:29:01.758818",
+  "name": "Change Implementer",
+  "restrict_to_domain": null,
+  "role_name": "Change Implementer",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-10-20 15:29:01.760593",
+  "name": "Grafana Integration",
+  "restrict_to_domain": null,
+  "role_name": "Grafana Integration",
+  "two_factor_auth": 0
+ },
+ {
+  "desk_access": 1,
+  "disabled": 0,
+  "docstatus": 0,
+  "doctype": "Role",
+  "home_page": null,
+  "is_custom": 0,
+  "modified": "2026-10-20 15:29:01.762470",
+  "name": "CI Integration",
+  "restrict_to_domain": null,
+  "role_name": "CI Integration",
+  "two_factor_auth": 0
+ }
+]

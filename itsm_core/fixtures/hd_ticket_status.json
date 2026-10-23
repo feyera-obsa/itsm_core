@@ -1,0 +1,54 @@
+[
+ {
+  "category": "Open",
+  "color": "Red",
+  "different_view": 0,
+  "docstatus": 0,
+  "doctype": "HD Ticket Status",
+  "enabled": 1,
+  "label_agent": "Open",
+  "label_customer": null,
+  "modified": "2026-07-14 12:30:59.171107",
+  "name": "Open",
+  "order": 1
+ },
+ {
+  "category": "Paused",
+  "color": "Blue",
+  "different_view": 1,
+  "docstatus": 0,
+  "doctype": "HD Ticket Status",
+  "enabled": 1,
+  "label_agent": "Replied",
+  "label_customer": "Awaiting Response",
+  "modified": "2026-07-14 12:30:59.171765",
+  "name": "Replied",
+  "order": 2
+ },
+ {
+  "category": "Resolved",
+  "color": "Green",
+  "different_view": 0,
+  "docstatus": 0,
+  "doctype": "HD Ticket Status",
+  "enabled": 1,
+  "label_agent": "Resolved",
+  "label_customer": null,
+  "modified": "2026-07-14 12:30:59.172391",
+  "name": "Resolved",
+  "order": 3
+ },
+ {
+  "category": "Resolved",
+  "color": "Gray",
+  "different_view": 0,
+  "docstatus": 0,
+  "doctype": "HD Ticket Status",
+  "enabled": 1,
+  "label_agent": "Closed",
+  "label_customer": null,
+  "modified": "2026-07-14 12:30:59.172933",
+  "name": "Closed",
+  "order": 4
+ }
+]

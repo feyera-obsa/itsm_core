@@ -1,0 +1,99 @@
+{
+    "doctype": "DocType",
+    "name": "Service Registry",
+    "module": "ITSM Core",
+    "custom": 0,
+    "autoname": "field:service_name",
+    "track_changes": 1,
+    "quick_entry": 1,
+    "fields": [
+        {
+            "fieldname": "service_name",
+            "label": "Service Name",
+            "fieldtype": "Data",
+            "reqd": 1,
+            "unique": 1,
+            "in_list_view": 1,
+            "in_standard_filter": 1
+        },
+        {
+            "fieldname": "owning_team",
+            "label": "Owning Team",
+            "fieldtype": "Link",
+            "options": "Role",
+            "reqd": 1,
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "service_owner",
+            "label": "Service Owner",
+            "fieldtype": "Link",
+            "options": "User",
+            "in_list_view": 1
+        },
+        {
+            "fieldname": "runbook_url",
+            "label": "Runbook URL",
+            "fieldtype": "Data",
+            "options": "URL",
+            "width": "200px"
+        },
+        {
+            "fieldname": "tier",
+            "label": "Tier",
+            "fieldtype": "Select",
+            "options": "Critical\nHigh\nMedium\nLow",
+            "reqd": 1,
+            "in_list_view": 1,
+            "in_standard_filter": 1
+        },
+        {
+            "fieldname": "slack_channel",
+            "label": "Slack Channel",
+            "fieldtype": "Data",
+            "width": "150px"
+        },
+        {
+            "fieldname": "grafana_dashboard_url",
+            "label": "Grafana Dashboard URL",
+            "fieldtype": "Data",
+            "options": "URL",
+            "width": "200px"
+        },
+        {
+            "fieldname": "reopen_window_hours",
+            "label": "Reopen Window (hours)",
+            "fieldtype": "Int",
+            "default": "24",
+            "in_list_view": 1
+        }
+    ],
+    "permissions": [
+        {
+            "role": "Change Manager",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1
+        },
+        {
+            "role": "System Manager",
+            "read": 1,
+            "write": 1,
+            "create": 1,
+            "delete": 1
+        },
+        {
+            "role": "Change Requester",
+            "read": 1
+        },
+        {
+            "role": "Change Approver",
+            "read": 1
+        },
+        {
+            "role": "Change Implementer",
+            "read": 1
+        }
+    ]
+}
