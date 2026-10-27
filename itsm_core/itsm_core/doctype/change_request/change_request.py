@@ -20,9 +20,11 @@ class ChangeRequest(Document):
                       "may authorize an Emergency change."),
                     frappe.PermissionError,
                 )
-            self.emergency_authorized_by = user
-            from frappe.utils import now, add_to_date
-            self.retro_review_due = add_to_date(now(), hours=24)
+            # Only set on first save (new doc)
+            if self.is_new():
+                self.emergency_authorized_by = user
+                from frappe.utils import now, add_to_date
+                self.retro_review_due = add_to_date(now(), hours=24)
         else:
             self.emergency_authorized_by = None
             self.retro_review_due = None
@@ -32,6 +34,7 @@ class ChangeRequest(Document):
         self._derive_risk_level()
         self._lock_fields_after_approval()
         self._validate_mandatory_fields_by_change_type()
+        self._validate_standard_change()
 
     def _validate_mandatory_fields_by_change_type(self):
         """Enforce mandatory fields for Normal and Emergency change types."""
@@ -53,6 +56,50 @@ class ChangeRequest(Document):
                     frappe.MandatoryError,
                 )
 
+    def _validate_standard_change(self):
+        """Validate Standard change requirements."""
+        if self.change_type != "Standard":
+            return
+
+        # Standard changes require a template
+        if not self.change_template:
+            frappe.throw(
+                _("Standard changes require a valid Change Template."),
+                frappe.MandatoryError,
+            )
+
+        template = frappe.get_doc("Standard Change Template", self.change_template)
+        if not template.enabled:
+            frappe.throw(
+                _("Selected Change Template is not enabled."),
+                frappe.MandatoryError,
+            )
+
+        # All affected services must be in template's allowed_services
+        allowed_services = {row.service for row in template.allowed_services}
+        for row in self.affected_services or []:
+            if row.service not in allowed_services:
+                frappe.throw(
+                    _("Service {0} is not allowed for this Standard Change Template. "
+                      "Allowed services: {1}").format(
+                        row.service, ", ".join(sorted(allowed_services))
+                    ),
+                    frappe.MandatoryError,
+                )
+
+        # Standard may not touch a Critical tier service
+        for row in self.affected_services or []:
+            svc = frappe.get_doc("Service Registry", row.service)
+            if svc.tier == "Critical":
+                frappe.throw(
+                    _("Standard changes may not affect Critical tier services. "
+                      "Service {0} is tier Critical.").format(row.service),
+                    frappe.MandatoryError,
+                )
+
+        # Set risk_level to Low for Standard
+        self.risk_level = "Low"
+
     def on_submit(self):
         """Called when document is submitted."""
         if self.workflow_state == "Approved for Deployment" and not self.approved_by:
@@ -60,7 +107,6 @@ class ChangeRequest(Document):
 
     def on_cancel(self):
         """Called when document is cancelled."""
-        # Clear approval fields when cancelled
         if self.approved_by:
             self.db_set("approved_by", None, update_modified=False)
         if self.emergency_authorized_by:
@@ -70,8 +116,6 @@ class ChangeRequest(Document):
 
     def on_trash(self):
         """Called when document is deleted - clean up child table."""
-        # The child table 'affected_services' will be auto-deleted by Frappe
-        # since it's a Table field with istable=1. No manual cleanup needed.
         pass
 
     def _compute_risk_score(self):
@@ -86,6 +130,9 @@ class ChangeRequest(Document):
 
     def _derive_risk_level(self):
         score = self.computed_risk_score or 0
+        if self.change_type == "Standard":
+            self.risk_level = "Low"
+            return
         if score >= 12:
             self.risk_level = "Critical"
         elif score >= 8:
@@ -107,13 +154,14 @@ class ChangeRequest(Document):
             locked_simple = [
                 "title", "justification", "implementation_steps",
                 "rollback_plan", "validation_criteria", "repo",
-                "scheduled_window",
+                "scheduled_start", "scheduled_end", "scheduled_window",
             ]
             for field in locked_simple:
                 if self.get(field) != old.get(field):
                     frappe.throw(
                         _("Field {0} is locked after approval").format(field)
                     )
+            
             def get_sort_key(row):
                 return (row.get("name") or "") + (row.get("service") or "")
             
