@@ -3,7 +3,7 @@
     "name": "Change Request",
     "module": "ITSM Core",
     "custom": 0,
-    "autoname": "CRQ-{YYYY}-{#####}",
+    "autoname": "CRQ-.YYYY.-.#####",
     "is_submittable": 1,
     "track_changes": 1,
     "quick_entry": 1,
