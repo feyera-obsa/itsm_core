@@ -338,12 +338,10 @@ Generate and deploy Scalar API documentation for the itsm_core app with OpenAPI 
 | `synthetic_alert` | POST | Grafana Webhook | System Manager |
 
 ### Files Created
-
 - `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/openapi.json` (20 KB)
 - `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/scalar_docs.html` (3 KB)
 
 ### Verification Results
-
 | Check | Status | Evidence |
 |-------|--------|----------|
 | openapi.json valid | ✅ PASS | JSON syntax validated, served as application/json |
@@ -354,7 +352,6 @@ Generate and deploy Scalar API documentation for the itsm_core app with OpenAPI 
 | Browser console | ✅ PASS | 0 JavaScript errors |
 
 ### Access URLs
-
 - **Scalar Documentation**: http://127.0.0.1:8001/assets/itsm_core/scalar_docs.html
 - **Raw OpenAPI JSON**: http://127.0.0.1:8001/assets/itsm_core/openapi.json
 - **Heartbeat (no auth)**: http://127.0.0.1:8001/api/method/itsm_core.api.heartbeat
@@ -422,7 +419,6 @@ Conduct a security audit and hardening pass on the itsm_core API endpoints and r
 - `/home/feye/frappe-bench/apps/itsm_core/itsm_core/api.py` - Sanitized error responses, added rate limiting, improved exception handling
 
 ### Verification Results
-
 | Check | Status | Evidence |
 |-------|--------|----------|
 | Information leakage eliminated | ✅ PASS | Error responses return generic messages only |
@@ -511,65 +507,6 @@ frappe.listview_settings['Grafana Webhook Log'] = {
 - Verified button opens docs in new tab
 
 ### Verification Results
-
-| Check | Status | Evidence |
-|-------|--------|----------|
-| Scalar UI renders (not raw JSON) | ✅ PASS | Browser shows full Scalar UI with sidebar, endpoints, dark mode |
-| data-url uses absolute asset path | ✅ PASS | `/assets/itsm_core/openapi.json` in script tag |
-| openapi.json accessible at asset path | ✅ PASS | HTTP 200, valid JSON |
-| Scalar UI zero JS errors | ✅ PASS | Browser console: 0 errors |
-| Client Script created | ✅ PASS | Client Script DocType exists, enabled |
-| Button appears in List View | ✅ PASS | "API Documentation" under Actions menu |
-| Button opens docs in new tab | ✅ PASS | Opens `/assets/itsm_core/scalar_docs.html` |
-
-### Files Modified
-- `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/scalar_docs.html` - Fixed data-url paths, HTML structure
-
-### Files Created (via Frappe)
-- Client Script: "Grafana Webhook Log - API Docs Button" (List View)
-
-### Verification Commands
-```bash
-# Verify Scalar UI loads
-curl -s http://127.0.0.1:8001/assets/itsm_core/scalar_docs.html | grep -c "scalar-api-reference"
-# Should return > 0
-
-# Verify openapi.json accessible
-curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001/assets/itsm_core/openapi.json
-# Expected: 200
-```
-
-Created Client Script for "Grafana Webhook Log" DocType:
-- **DocType:** Grafana Webhook Log
-- **View:** List
-- **Script:** Adds "API Documentation" button to Actions menu in list view header
-- **Action:** Opens `/assets/itsm_core/scalar_docs.html` in new tab
-- **Style:** Primary button (`btn-primary`)
-
-**Client Script Code:**
-```javascript
-frappe.listview_settings['Grafana Webhook Log'] = {
-    onload: function(listview) {
-        listview.page.add_inner_button(__('API Documentation'), function() {
-            window.open('/assets/itsm_core/scalar_docs.html', '_blank');
-        }, __('Actions')).addClass('btn-primary');
-    }
-};
-```
-
-**Created via:** Bench console (Client Script DocType)
-**Name:** "Grafana Webhook Log - API Docs Button"
-**Status:** Enabled
-
-#### 3. Build and Verify
-- Ran `bench --site fastpay.local clear-cache`
-- Verified `scalar_docs.html` loads Scalar UI (not raw JSON)
-- Verified Scalar UI renders with all 6 endpoints, dark mode, interactive
-- Verified "API Documentation" button appears in Grafana Webhook Log List View Actions menu
-- Verified button opens docs in new tab
-
-### Verification Results
-
 | Check | Status | Evidence |
 |-------|--------|----------|
 | Scalar UI renders (not raw JSON) | ✅ PASS | Browser shows full Scalar UI with sidebar, endpoints, dark mode |
@@ -652,7 +589,7 @@ frappe.listview_settings['Grafana Webhook Log'] = {
 ```
 
 **Files Modified:**
-- Client Script: "Grafana Webhook Log - API Docs Button" (List View) - Updated script
+- Client Script: "Grafana Webhook Log - API Docs Button" (List View) - Updated to use `add_primary_action`
 
 #### 3. Build and Verify
 - Ran `bench --site fastpay.local clear-cache`
@@ -661,7 +598,6 @@ frappe.listview_settings['Grafana Webhook Log'] = {
 - Verified "API Documentation" button appears as primary button in list view header
 
 ### Verification Results
-
 | Check | Status | Evidence |
 |-------|--------|----------|
 | Scalar UI renders (not raw JSON) | ✅ PASS | Browser shows full Scalar UI with sidebar, endpoints, dark mode |
@@ -688,3 +624,105 @@ curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001/assets/itsm_core/op
 ```
 
 **Status:** Scalar API Documentation rendering fixed and button placement corrected. Phase 2.22 marked COMPLETE.
+
+---
+
+## Phase 2.23: Scalar API Documentation Local Bundle & Hardening
+
+**Start Time:** 2026-10-27 14:00:00 EAT  
+**End Time:** 2026-10-27 14:30:00 EAT  
+**Status:** COMPLETE
+
+### Objective
+Fix the Scalar API documentation rendering and harden the Scalar docs page by:
+1. Rewriting scalar_docs.html as a minimal page with local Scalar bundle
+2. Using pinned Scalar version 1.73.1 (published 2026-10-07) downloaded to local vendor/
+3. Fixing openapi.json security scheme to apiKey/Authorization
+4. Removing hardcoded server from openapi.json
+4. Verifying both HTML and JS bundle serve correctly
+
+### Fix Applied
+
+#### 1. Download Pinned Scalar Bundle
+**Version:** 1.73.1 (published 2026-10-07, 14 days ago)
+**Source:** `https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.73.1/dist/browser/standalone.js`
+**Destination:** `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/vendor/scalar-api-reference.umd.js` (4.4 MB)
+
+#### 2. Rewrite scalar_docs.html as Minimal Page
+**Structure:**
+- Slim sticky top bar (52px) with title, version badge, and links (ERPNext Desk, Health Check, Raw OpenAPI JSON)
+- `<div id="app"></div>` mount point
+- Local bundle: `/assets/itsm_core/vendor/scalar-api-reference.umd.js`
+- `Scalar.createApiReference('#app', {...})` initialization
+- CSS variable `--scalar-custom-header-height: 52px` for Scalar's internal header offset
+- Top bar: `position: sticky; top: 0; z-index: 100`
+
+**Scalar Configuration:**
+- `url: '/assets/itsm_core/openapi.json'`
+- `servers: [{ url: window.location.origin, description: 'This site' }]`
+- `theme: 'deepSpace', layout: 'modern'`
+- `showDeveloperTools: 'never'`
+- `agent: { disabled: true }`
+- `mcp: { disabled: true }`
+- `telemetry: false`
+- `authentication: { preferredSecurityScheme: 'ApiTokenAuth' }`
+
+**HTML Structure:** Minimal HTML5 with no wrapper elements, no height/min-height on containers, no loading placeholders.
+
+#### 3. Fix openapi.json Security Scheme & Server
+**Security Scheme:** Changed from `http/bearer` to `apiKey` in header:
+```json
+"ApiTokenAuth": {
+  "type": "apiKey",
+  "in": "header",
+  "name": "Authorization",
+  "description": "Frappe API token. Format: `token <api_key>:<api_secret>`"
+}
+```
+- Top-level `security: [{ "ApiTokenAuth": [] }]`
+- `security: []` on heartbeat operation (guest)
+- Removed hardcoded `http://127.0.0.1:8001` server entry (page config overrides it)
+- Added server with variable: `{ "url": "{baseUrl}", "variables": { "baseUrl": { "default": "http://127.0.0.1:8001" } } }`
+
+**Path Verification:** All 6 endpoints match `@frappe.whitelist` functions in `api.py`
+
+#### 4. Verify Asset Serving
+| Asset | HTTP Status | Content-Type |
+|-------|-------------|--------------|
+| `/assets/itsm_core/scalar_docs.html` | 200 | `text/html; charset=utf-8` |
+| `/assets/itsm_core/openapi.json` | 200 | `application/json` |
+| `/assets/itsm_core/vendor/scalar-api-reference.umd.js` | 200 | `text/javascript; charset=utf-8` |
+
+### Verification Results
+| Check | Status | Evidence |
+|-------|--------|----------|
+| Scalar UI renders (not raw JSON) | ✅ PASS | Full Scalar UI with sidebar, 6 endpoints, dark mode |
+| Local bundle loads | ✅ PASS | 4.4 MB JS loads, Scalar.createApiReference works |
+| openapi.json valid | ✅ PASS | HTTP 200, valid JSON, apiKey auth scheme |
+| No hardcoded server | ✅ PASS | Server uses template variable |
+| Auth panel shows apiKey/Authorization | ✅ PASS | Auth panel shows apiKey in Authorization header |
+| No Developer Tools bar | ✅ PASS | `showDeveloperTools: 'never'` |
+| No Ask AI agent | ✅ PASS | `agent: { disabled: true }` |
+| Button visible on list page | ✅ PASS | "API Docs" primary button next to "Add" |
+
+### Files Modified
+- `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/scalar_docs.html` - Complete rewrite
+- `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/openapi.json` - Fixed security scheme, server config
+- `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/vendor/scalar-api-reference.umd.js` - New local bundle (1.73.1)
+
+### Verification Commands
+```bash
+# Verify Scalar UI loads
+curl -s http://127.0.0.1:8001/assets/itsm_core/scalar_docs.html | grep -c "scalar-api-reference"
+# Should return > 0
+
+# Verify openapi.json accessible
+curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001/assets/itsm_core/openapi.json
+# Expected: 200
+
+# Verify JS bundle
+curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001/assets/itsm_core/vendor/scalar-api-reference.umd.js
+# Expected: 200
+```
+
+**Status:** Scalar API Documentation fully fixed, hardened, and verified. Phase 2.23 marked COMPLETE.
