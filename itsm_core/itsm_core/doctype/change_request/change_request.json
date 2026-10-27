@@ -60,10 +60,25 @@
             "reqd": 1
         },
         {
-            "fieldname": "scheduled_window",
-            "label": "Scheduled Window",
+            "fieldname": "scheduled_start",
+            "label": "Scheduled Start",
             "fieldtype": "Datetime",
-            "width": "180px"
+            "width": "180px",
+            "reqd": 1
+        },
+        {
+            "fieldname": "scheduled_end",
+            "label": "Scheduled End",
+            "fieldtype": "Datetime",
+            "width": "180px",
+            "reqd": 1
+        },
+        {
+            "fieldname": "scheduled_window",
+            "label": "Scheduled Window (deprecated)",
+            "fieldtype": "Datetime",
+            "width": "180px",
+            "hidden": 1
         },
         {
             "fieldname": "section_why_what",
@@ -86,6 +101,24 @@
             "fieldname": "section_risk",
             "fieldtype": "Section Break",
             "label": "Risk Assessment"
+        },
+        {
+            "fieldname": "change_category",
+            "label": "Change Category",
+            "fieldtype": "Select",
+            "options": "Code\nConfig\nInfrastructure\nData\nOther",
+            "reqd": 1,
+            "in_list_view": 1,
+            "in_standard_filter": 1
+        },
+        {
+            "fieldname": "environment",
+            "label": "Environment",
+            "fieldtype": "Select",
+            "options": "Production\nStaging\nOther",
+            "default": "Production",
+            "reqd": 1,
+            "in_list_view": 1
         },
         {
             "fieldname": "impact",
@@ -133,14 +166,16 @@
             "fieldname": "section_cicd",
             "fieldtype": "Section Break",
             "label": "CI/CD",
-            "collapsible": 1
+            "collapsible": 1,
+            "depends_on": "eval:doc.change_category=='Code'"
         },
         {
             "fieldname": "repo",
             "label": "Repo",
             "fieldtype": "Data",
             "width": "200px",
-            "in_standard_filter": 1
+            "in_standard_filter": 1,
+            "mandatory_depends_on": "eval:doc.change_category=='Code'"
         },
         {
             "fieldname": "linked_pr_url",
@@ -187,10 +222,53 @@
             "allow_on_submit": 1
         },
         {
+            "fieldname": "implemented_on",
+            "label": "Implemented On",
+            "fieldtype": "Datetime",
+            "read_only": 1,
+            "allow_on_submit": 1
+        },
+        {
+            "fieldname": "implementer",
+            "label": "Implementer",
+            "fieldtype": "Link",
+            "options": "User"
+        },
+        {
+            "fieldname": "related_ticket",
+            "label": "Related Ticket",
+            "fieldtype": "Link",
+            "options": "HD Ticket"
+        },
+        {
+            "fieldname": "outcome",
+            "label": "Outcome",
+            "fieldtype": "Select",
+            "options": "Successful\nSuccessful with issues\nRolled back\nFailed",
+            "allow_on_submit": 1,
+            "depends_on": "eval:[\"Implemented\",\"Post-Implementation Review\",\"Closed\"].includes(doc.workflow_state)",
+            "mandatory_depends_on": "eval:doc.workflow_state==\"Closed\""
+        },
+        {
+            "fieldname": "pir_notes",
+            "label": "PIR Notes",
+            "fieldtype": "Small Text",
+            "allow_on_submit": 1,
+            "depends_on": "eval:[\"Implemented\",\"Post-Implementation Review\",\"Closed\"].includes(doc.workflow_state)"
+        },
+        {
+            "fieldname": "rejection_reason",
+            "label": "Rejection Reason",
+            "fieldtype": "Small Text",
+            "depends_on": "eval:doc.workflow_state==\"Rejected\"",
+            "mandatory_depends_on": "eval:doc.workflow_state==\"Rejected\""
+        },
+        {
             "fieldname": "workflow_state",
             "label": "Workflow State",
             "fieldtype": "Read Only",
             "read_only": 1,
+            "allow_on_submit": 1,
             "in_list_view": 1,
             "in_standard_filter": 1
         }
@@ -231,5 +309,5 @@
             "cancel": 1
         }
     ],
-    "modified": "2026-10-27 13:15:00.000000"
+    "modified": "2026-10-27 14:30:00.000000"
 }
