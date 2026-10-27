@@ -1,0 +1,500 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "itsm_core API",
+    "version": "1.0.0",
+    "description": "itsm_core API endpoints for ERPNext v16 (HD Ticket).\n\nEndpoints:\n  POST /api/method/itsm_core.api.ingest_grafana_alert   (Grafana webhook)\n  POST /api/method/itsm_core.api.get_change_state         (CI gate)\n  POST /api/method/itsm_core.api.record_deployment         (CI evidence)\n  POST /api/method/itsm_core.api.replay_webhook            (System Manager replay)\n  GET  /api/method/itsm_core.api.heartbeat                 (allow_guest liveness)\n  POST /api/method/itsm_core.api.synthetic_alert           (System Manager test)\n\nAuthentication: API Token (Bearer) for dedicated service users.\nGrafana webhook uses `Grafana Integration` role.\nCI endpoints use `CI Integration` role.\nReplay and synthetic require `System Manager` role.\nHeartbeat allows guest access.",
+    "contact": {
+      "name": "itsm_core",
+      "url": "https://github.com/itsm_core"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8001",
+      "description": "Local development server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "ApiTokenAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API Token",
+        "description": "API Token authentication for dedicated service users. Include in Authorization header as `Bearer <token>`."
+      }
+    },
+    "schemas": {
+      "GrafanaAlert": {
+        "type": "object",
+        "properties": {
+          "fingerprint": { "type": "string", "description": "Unique alert fingerprint" },
+          "status": { "type": "string", "enum": ["firing", "resolved"], "default": "firing" },
+          "startsAt": { "type": "string", "format": "date-time", "description": "Alert start timestamp (ISO 8601)" },
+          "endsAt": { "type": "string", "format": "date-time", "description": "Alert end timestamp (ISO 8601)" },
+          "labels": {
+            "type": "object",
+            "additionalProperties": { "type": "string" },
+            "properties": {
+              "service": { "type": "string", "description": "Service name (matches Service Registry)" },
+              "severity": { "type": "string", "enum": ["critical", "high", "medium", "low", "warning"], "default": "warning" },
+              "alertname": { "type": "string" },
+              "instance": { "type": "string" }
+            },
+            "required": ["service", "severity"]
+          },
+          "annotations": {
+            "type": "object",
+            "additionalProperties": { "type": "string" },
+            "properties": {
+              "summary": { "type": "string", "description": "Short alert summary" },
+              "description": { "type": "string", "description": "Detailed alert description" },
+              "runbook_url": { "type": "string", "format": "uri", "description": "Link to runbook" },
+              "runbookUrl": { "type": "string", "format": "uri", "description": "Alternative runbook URL field" }
+            }
+          },
+          "generatorURL": { "type": "string", "format": "uri" }
+        },
+        "required": ["fingerprint", "startsAt", "labels"]
+      },
+      "GrafanaWebhookPayload": {
+        "type": "object",
+        "properties": {
+          "receiver": { "type": "string" },
+          "status": { "type": "string", "enum": ["firing", "resolved"] },
+          "alerts": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/GrafanaAlert" }
+          },
+          "groupLabels": { "type": "object", "additionalProperties": { "type": "string" } },
+          "commonLabels": { "type": "object", "additionalProperties": { "type": "string" } },
+          "commonAnnotations": { "type": "object", "additionalProperties": { "type": "string" } },
+          "externalURL": { "type": "string", "format": "uri" }
+        },
+        "required": ["alerts"]
+      },
+      "IngestAlertResult": {
+        "type": "object",
+        "properties": {
+          "fingerprint": { "type": "string" },
+          "action": { "type": "string", "enum": ["created", "updated", "reopened", "auto_resolved", "awaiting_verification", "ignored", "error"] },
+          "ticket": { "type": "string", "description": "HD Ticket name" },
+          "priority": { "type": "string", "enum": ["Critical", "High", "Medium", "Low"] },
+          "occurrence_count": { "type": "integer" },
+          "reopen_window_hours": { "type": "integer" },
+          "message": { "type": "string" },
+          "status": { "type": "string", "enum": ["error"] },
+          "raw_alert": { "type": "object" }
+        }
+      },
+      "IngestGrafanaAlertResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["ok", "error"] },
+          "processed": { "type": "integer" },
+          "results": { "type": "array", "items": { "$ref": "#/components/schemas/IngestAlertResult" } }
+        },
+        "required": ["status", "processed", "results"]
+      },
+      "ChangeStateRequest": {
+        "type": "object",
+        "required": ["change_request_id", "repo"],
+        "properties": {
+          "change_request_id": { "type": "string", "description": "Change Request name (e.g., CRQ-2026-00001)" },
+          "repo": { "type": "string", "description": "Repository URL matching the Change Request's repo field" }
+        }
+      },
+      "ChangeStateResponse": {
+        "type": "object",
+        "properties": {
+          "change_request": { "type": "string" },
+          "workflow_state": { "type": "string" },
+          "approved_for_deployment": { "type": "boolean" },
+          "repo": { "type": "string" }
+        },
+        "required": ["change_request", "workflow_state", "approved_for_deployment", "repo"]
+      },
+      "ChangeStateErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["error"] },
+          "message": { "type": "string" }
+        }
+      },
+      "RecordDeploymentRequest": {
+        "type": "object",
+        "required": ["change_request_id", "evidence"],
+        "properties": {
+          "change_request_id": { "type": "string", "description": "Change Request name" },
+          "evidence": { "type": "string", "description": "Deployment evidence to append (e.g., commit SHA, image tag, logs)" }
+        }
+      },
+      "RecordDeploymentResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["ok"] },
+          "change_request": { "type": "string" },
+          "logged_by": { "type": "string" }
+        },
+        "required": ["status", "change_request", "logged_by"]
+      },
+      "ReplayWebhookRequest": {
+        "type": "object",
+        "required": ["webhook_log_name"],
+        "properties": {
+          "webhook_log_name": { "type": "string", "description": "Name of the Grafana Webhook Log document to replay" }
+        }
+      },
+      "ReplayWebhookResult": {
+        "type": "object",
+        "properties": {
+          "fingerprint": { "type": "string" },
+          "action": { "type": "string", "enum": ["created", "updated", "reopened", "auto_resolved", "awaiting_verification", "ignored", "error"] },
+          "ticket": { "type": "string" },
+          "priority": { "type": "string", "enum": ["Critical", "High", "Medium", "Low"] },
+          "occurrence_count": { "type": "integer" },
+          "reopen_window_hours": { "type": "integer" },
+          "message": { "type": "string" },
+          "status": { "type": "string", "enum": ["error"] }
+        }
+      },
+      "ReplayWebhookResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["ok", "error"] },
+          "processed": { "type": "integer" },
+          "results": { "type": "array", "items": { "$ref": "#/components/schemas/ReplayWebhookResult" } }
+        },
+        "required": ["status", "processed", "results"]
+      },
+      "HeartbeatResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["ok", "error"] },
+          "message": { "type": "string" }
+        }
+      },
+      "SyntheticAlertResponse": {
+        "type": "object",
+        "properties": {
+          "fingerprint": { "type": "string" },
+          "action": { "type": "string", "enum": ["created", "updated", "reopened", "auto_resolved", "awaiting_verification", "ignored", "error"] },
+          "ticket": { "type": "string" },
+          "priority": { "type": "string", "enum": ["Critical", "High", "Medium", "Low"] },
+          "occurrence_count": { "type": "integer" },
+          "reopen_window_hours": { "type": "integer" },
+          "message": { "type": "string" },
+          "status": { "type": "string", "enum": ["error"] }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["error"] },
+          "message": { "type": "string" }
+        }
+      }
+    }
+  },
+  "security": [
+    { "ApiTokenAuth": [] }
+  ],
+  "paths": {
+    "/api/method/itsm_core.api.ingest_grafana_alert": {
+      "post": {
+        "tags": ["Grafana Webhook"],
+        "summary": "Ingest Grafana Alertmanager webhook alerts",
+        "description": "Receives Grafana Alertmanager webhook payloads and creates/updates HD Tickets with deduplication, flapping detection, and priority-based resolution rules. Requires `Grafana Integration` role with API token authentication.",
+        "operationId": "ingest_grafana_alert",
+        "security": [{ "ApiTokenAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/GrafanaWebhookPayload" },
+              "examples": {
+                "standard_alert": {
+                  "summary": "Standard Grafana firing alert",
+                  "value": {
+                    "receiver": "erpnext-webhook",
+                    "status": "firing",
+                    "alerts": [
+                      {
+                        "fingerprint": "abc123def456",
+                        "status": "firing",
+                        "startsAt": "2026-10-23T12:00:00Z",
+                        "labels": {
+                          "alertname": "HighCPUUsage",
+                          "service": "payments-api",
+                          "severity": "critical",
+                          "instance": "server-01"
+                        },
+                        "annotations": {
+                          "summary": "High CPU Usage on payments-api",
+                          "description": "CPU > 90% for 5 minutes",
+                          "runbook_url": "https://github.com/runbooks/cpu.md"
+                        },
+                        "generatorURL": "http://grafana:3000/..."
+                      }
+                    ],
+                    "groupLabels": { "alertname": "HighCPUUsage" },
+                    "commonLabels": { "service": "payments-api" },
+                    "commonAnnotations": { "summary": "High CPU Usage" },
+                    "externalURL": "http://grafana:3000"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Alerts processed (always 200 unless infrastructure failure)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/IngestGrafanaAlertResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON body",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "403": {
+            "description": "Missing or invalid API token / insufficient role",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/method/itsm_core.api.get_change_state": {
+      "post": {
+        "tags": ["CI Gate"],
+        "summary": "CI gate: verify Change Request state and repo match",
+        "description": "Verifies that a Change Request is in 'Approved for Deployment' state and its repo matches the pipeline repo. Requires `CI Integration` role with API token authentication. Fail-closed: returns 403 if repo is empty or mismatched.",
+        "operationId": "get_change_state",
+        "security": [{ "ApiTokenAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ChangeStateRequest" },
+              "examples": {
+                "valid_request": {
+                  "summary": "Valid CI gate check",
+                  "value": {
+                    "change_request_id": "CRQ-2026-00001",
+                    "repo": "https://github.com/org/payments-api"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Change Request state retrieved",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ChangeStateResponse" }
+              }
+            }
+          },
+          "403": {
+            "description": "Change Request has no repo set or repo mismatch / insufficient role",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ChangeStateErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/method/itsm_core.api.record_deployment": {
+      "post": {
+        "tags": ["CI Gate"],
+        "summary": "CI gate: record deployment evidence on Change Request",
+        "description": "Appends deployment evidence (commit SHA, image tag, logs URL, etc.) to the Change Request's deployment_evidence field. Never overwrites existing evidence. Logs the actor (API user) and timestamp. Requires `CI Integration` role with API token authentication.",
+        "operationId": "record_deployment",
+        "security": [{ "ApiTokenAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RecordDeploymentRequest" },
+              "examples": {
+                "deployment_evidence": {
+                  "summary": "Record deployment evidence",
+                  "value": {
+                    "change_request_id": "CRQ-2026-00001",
+                    "evidence": "Deployed image payments-api:v2.3.1 (commit abc123) to production via ArgoCD"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Evidence recorded successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RecordDeploymentResponse" }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient role (requires CI Integration)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/method/itsm_core.api.replay_webhook": {
+      "post": {
+        "tags": ["Grafana Webhook"],
+        "summary": "Replay a stored Grafana Webhook Log payload",
+        "description": "Replays a previously stored Grafana Webhook Log document through the full ingestion pipeline. Useful for testing or reprocessing failed alerts. Requires `System Manager` role with API token authentication.",
+        "operationId": "replay_webhook",
+        "security": [{ "ApiTokenAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ReplayWebhookRequest" },
+              "examples": {
+                "replay_log": {
+                  "summary": "Replay a webhook log",
+                  "value": {
+                    "webhook_log_name": "GWL-2026-00001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook replay completed",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ReplayWebhookResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Stored payload is not valid JSON",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient role (requires System Manager)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/method/itsm_core.api.heartbeat": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Liveness probe endpoint",
+        "description": "Simple health check that verifies database connectivity (SELECT 1). Allows guest access - no authentication required. Returns only `{\"status\":\"ok\"}` on success.",
+        "operationId": "heartbeat",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Service healthy",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HeartbeatResponse" },
+                "examples": {
+                  "healthy": {
+                    "summary": "Healthy response",
+                    "value": { "status": "ok" }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Database connection failed",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/HeartbeatResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/method/itsm_core.api.synthetic_alert": {
+      "post": {
+        "tags": ["Grafana Webhook"],
+        "summary": "Exercise full ingestion path with synthetic alert",
+        "description": "Creates and processes a synthetic test alert to validate the end-to-end ingestion pipeline (not just endpoint liveness). Requires `System Manager` role with API token authentication.",
+        "operationId": "synthetic_alert",
+        "security": [{ "ApiTokenAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Synthetic alert processed",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SyntheticAlertResponse" }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient role (requires System Manager)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Grafana Webhook",
+      "description": "Grafana Alertmanager webhook ingestion and replay"
+    },
+    {
+      "name": "CI Gate",
+      "description": "CI/CD pipeline integration endpoints"
+    },
+    {
+      "name": "Health",
+      "description": "Health check endpoints"
+    }
+  ]
+}

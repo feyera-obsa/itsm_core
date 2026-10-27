@@ -364,8 +364,8 @@ def ingest_grafana_alert():
             _log_webhook_payload(alert, str(e))
             results.append({
                 "status": "error",
-                "message": str(e),
-                "raw_alert": alert,
+                "message": "Internal processing error",
+                "raw_alert": None,
             })
 
     # FIX #4: Return 200; non-2xx only for infrastructure failures.
@@ -397,7 +397,7 @@ def replay_webhook(webhook_log_name):
             results.append(_process_alert(alert))
         except Exception as e:
             frappe.db.rollback(save_point=savepoint)
-            results.append({"status": "error", "message": str(e)})
+            results.append({"status": "error", "message": "Internal processing error"})
     log.replay = 1
     log.save(ignore_permissions=True)
     frappe.local.response.http_status_code = 200
@@ -456,14 +456,32 @@ def record_deployment(change_request_id, evidence):
 
 @frappe.whitelist(allow_guest=True)
 def heartbeat():
-    """FIX #5: allow_guest liveness; returns only {"status":"ok"} after SELECT 1."""
+    """FIX #5: allow_guest liveness; returns only {"status":"ok"} after SELECT 1.
+    
+    Includes basic rate limiting: max 60 requests per minute per IP.
+    """
+    # Basic rate limiting: 60 req/min per IP
+    try:
+        if hasattr(frappe.local, 'request') and frappe.local.request:
+            remote_addr = getattr(frappe.local.request, 'remote_addr', None) or getattr(frappe.local.request, 'environ', {}).get('REMOTE_ADDR')
+            if remote_addr:
+                cache_key = f"heartbeat_rate_limit:{remote_addr}"
+                count = frappe.cache().get(cache_key) or 0
+                if count >= 60:
+                    frappe.local.response.http_status_code = 429
+                    return {"status": "error", "message": "Rate limit exceeded"}
+                frappe.cache().setex(cache_key, 60, count + 1)
+    except Exception:
+        # If rate limiting fails, allow the request through (fail open for health checks)
+        pass
+    
     try:
         frappe.db.sql("SELECT 1")
         frappe.local.response.http_status_code = 200
         return {"status": "ok"}
-    except Exception as e:
+    except Exception:
         frappe.local.response.http_status_code = 500
-        return {"status": "error", "message": str(e)}
+        return {"status": "error", "message": "Health check failed"}
 
 
 @frappe.whitelist()
@@ -481,4 +499,9 @@ def synthetic_alert():
         "labels": {"service": "synthetic", "severity": "warning"},
         "annotations": {"summary": "Synthetic alert for ingestion path test"},
     }
-    return _process_alert(alert)
+    try:
+        return _process_alert(alert)
+    except Exception:
+        frappe.log_error(frappe.get_traceback(), "itsm_core: synthetic_alert failed")
+        frappe.local.response.http_status_code = 500
+        return {"status": "error", "message": "Internal processing error"}

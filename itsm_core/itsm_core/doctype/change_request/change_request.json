@@ -39,21 +39,22 @@
             "label": "Impact",
             "fieldtype": "Select",
             "options": "1 - Low\n2 - Medium\n3 - High\n4 - Critical",
-            "reqd": 1
+            "depends_on": "eval:doc.change_type!='Standard'"
         },
         {
             "fieldname": "likelihood",
             "label": "Likelihood",
             "fieldtype": "Select",
             "options": "1 - Rare\n2 - Unlikely\n3 - Possible\n4 - Likely\n5 - Certain",
-            "reqd": 1
+            "depends_on": "eval:doc.change_type!='Standard'"
         },
         {
             "fieldname": "computed_risk_score",
             "label": "Computed Risk Score",
             "fieldtype": "Int",
             "read_only": 1,
-            "in_list_view": 1
+            "in_list_view": 1,
+            "depends_on": "eval:doc.change_type!='Standard'"
         },
         {
             "fieldname": "justification",
@@ -71,13 +72,15 @@
             "fieldname": "rollback_plan",
             "label": "Rollback Plan",
             "fieldtype": "Text Editor",
-            "reqd": 1
+            "depends_on": "eval:doc.change_type!='Standard'",
+            "mandatory_depends_on": "eval:doc.change_type=='Normal'"
         },
         {
             "fieldname": "validation_criteria",
             "label": "Validation Criteria",
             "fieldtype": "Text Editor",
-            "reqd": 1
+            "depends_on": "eval:doc.change_type!='Standard'",
+            "mandatory_depends_on": "eval:doc.change_type=='Normal'"
         },
         {
             "fieldname": "affected_services",

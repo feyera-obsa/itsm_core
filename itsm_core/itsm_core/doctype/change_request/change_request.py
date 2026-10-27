@@ -31,6 +31,27 @@ class ChangeRequest(Document):
         self._compute_risk_score()
         self._derive_risk_level()
         self._lock_fields_after_approval()
+        self._validate_mandatory_fields_by_change_type()
+
+    def _validate_mandatory_fields_by_change_type(self):
+        """Enforce mandatory fields for Normal and Emergency change types."""
+        if self.change_type in ("Normal", "Emergency"):
+            missing = []
+            if not self.impact:
+                missing.append("Impact")
+            if not self.likelihood:
+                missing.append("Likelihood")
+            if not self.rollback_plan:
+                missing.append("Rollback Plan")
+            if not self.validation_criteria:
+                missing.append("Validation Criteria")
+            if missing:
+                frappe.throw(
+                    _("The following fields are required for {0} changes: {1}").format(
+                        self.change_type, ", ".join(missing)
+                    ),
+                    frappe.MandatoryError,
+                )
 
     def on_submit(self):
         """Called when document is submitted."""
