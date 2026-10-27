@@ -448,3 +448,243 @@ curl -X POST http://127.0.0.1:8001/api/method/itsm_core.api.synthetic_alert
 - `/home/feye/frappe-bench/apps/itsm_core/itsm_core/api.py` - Error sanitization, rate limiting, exception handling
 
 **Status:** Security Audit & Hardening complete. Phase 2.20 marked COMPLETE.
+
+---
+
+## Phase 2.21: Scalar API Documentation Fix & Webhook Log Integration
+
+**Start Time:** 2026-10-23 12:00:00 EAT  
+**End Time:** 2026-10-23 12:30:00 EAT  
+**Status:** COMPLETE
+
+### Objective
+Fix the Scalar API documentation rendering (was showing raw JSON instead of Scalar UI) and add a contextual "API Documentation" button to the Grafana Webhook Log List View.
+
+### Fix Applied
+
+#### 1. Fix Scalar HTML Rendering (HIGH)
+**Issue:** The `scalar_docs.html` was rendering as raw JSON instead of the Scalar UI. Root causes:
+- `data-url` attribute used relative path `./openapi.json` which fails when served via Frappe's asset pipeline
+- Missing proper HTML5 boilerplate causing browser to treat as JSON
+
+**Fix Applied to `scalar_docs.html`:**
+- Changed `data-url` from `./openapi.json` to absolute Frappe asset path: `/assets/itsm_core/openapi.json`
+- Changed `href` for Raw OpenAPI JSON link from `openapi.json` to `/assets/itsm_core/openapi.json`
+- Verified proper HTML5 boilerplate with DOCTYPE, charset, viewport meta tags
+- Used official Scalar CDN script: `https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest`
+- Ensured script tag with `type="application/json"` and `data-url` loads before Scalar CDN script
+
+**Files Modified:**
+- `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/scalar_docs.html`
+
+#### 2. Add "API Documentation" Button to Grafana Webhook Log List View (MEDIUM)
+**Objective:** Add contextual "API Documentation" button to the Grafana Webhook Log List View (under Actions menu) instead of cluttering main sidebar.
+
+**Implementation:**
+Created Client Script for "Grafana Webhook Log" DocType:
+- **DocType:** Grafana Webhook Log
+- **View:** List
+- **Script:** Adds "API Documentation" button to Actions menu in list view header
+- **Action:** Opens `/assets/itsm_core/scalar_docs.html` in new tab
+- **Style:** Primary button (`btn-primary`)
+
+**Client Script Code:**
+```javascript
+frappe.listview_settings['Grafana Webhook Log'] = {
+    onload: function(listview) {
+        listview.page.add_inner_button(__('API Documentation'), function() {
+            window.open('/assets/itsm_core/scalar_docs.html', '_blank');
+        }, __('Actions')).addClass('btn-primary');
+    }
+};
+```
+
+**Created via:** Bench console (Client Script DocType)
+**Name:** "Grafana Webhook Log - API Docs Button"
+**Status:** Enabled
+
+#### 3. Build and Verify
+- Ran `bench --site fastpay.local clear-cache`
+- Verified `scalar_docs.html` loads Scalar UI (not raw JSON)
+- Verified Scalar UI renders with all 6 endpoints, dark mode, interactive
+- Verified "API Documentation" button appears in Grafana Webhook Log List View Actions menu
+- Verified button opens docs in new tab
+
+### Verification Results
+
+| Check | Status | Evidence |
+|-------|--------|----------|
+| Scalar UI renders (not raw JSON) | ✅ PASS | Browser shows full Scalar UI with sidebar, endpoints, dark mode |
+| data-url uses absolute asset path | ✅ PASS | `/assets/itsm_core/openapi.json` in script tag |
+| openapi.json accessible at asset path | ✅ PASS | HTTP 200, valid JSON |
+| Scalar UI zero JS errors | ✅ PASS | Browser console: 0 errors |
+| Client Script created | ✅ PASS | Client Script DocType exists, enabled |
+| Button appears in List View | ✅ PASS | "API Documentation" under Actions menu |
+| Button opens docs in new tab | ✅ PASS | Opens `/assets/itsm_core/scalar_docs.html` |
+
+### Files Modified
+- `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/scalar_docs.html` - Fixed data-url paths, HTML structure
+
+### Files Created (via Frappe)
+- Client Script: "Grafana Webhook Log - API Docs Button" (List View)
+
+### Verification Commands
+```bash
+# Verify Scalar UI loads
+curl -s http://127.0.0.1:8001/assets/itsm_core/scalar_docs.html | grep -c "scalar-api-reference"
+# Should return > 0
+
+# Verify openapi.json accessible
+curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001/assets/itsm_core/openapi.json
+# Expected: 200
+```
+
+Created Client Script for "Grafana Webhook Log" DocType:
+- **DocType:** Grafana Webhook Log
+- **View:** List
+- **Script:** Adds "API Documentation" button to Actions menu in list view header
+- **Action:** Opens `/assets/itsm_core/scalar_docs.html` in new tab
+- **Style:** Primary button (`btn-primary`)
+
+**Client Script Code:**
+```javascript
+frappe.listview_settings['Grafana Webhook Log'] = {
+    onload: function(listview) {
+        listview.page.add_inner_button(__('API Documentation'), function() {
+            window.open('/assets/itsm_core/scalar_docs.html', '_blank');
+        }, __('Actions')).addClass('btn-primary');
+    }
+};
+```
+
+**Created via:** Bench console (Client Script DocType)
+**Name:** "Grafana Webhook Log - API Docs Button"
+**Status:** Enabled
+
+#### 3. Build and Verify
+- Ran `bench --site fastpay.local clear-cache`
+- Verified `scalar_docs.html` loads Scalar UI (not raw JSON)
+- Verified Scalar UI renders with all 6 endpoints, dark mode, interactive
+- Verified "API Documentation" button appears in Grafana Webhook Log List View Actions menu
+- Verified button opens docs in new tab
+
+### Verification Results
+
+| Check | Status | Evidence |
+|-------|--------|----------|
+| Scalar UI renders (not raw JSON) | ✅ PASS | Browser shows full Scalar UI with sidebar, endpoints, dark mode |
+| data-url uses absolute asset path | ✅ PASS | `/assets/itsm_core/openapi.json` in script tag |
+| openapi.json accessible at asset path | ✅ PASS | HTTP 200, valid JSON |
+| Scalar UI zero JS errors | ✅ PASS | Browser console: 0 errors |
+| Client Script created | ✅ PASS | Client Script DocType exists, enabled |
+| Button appears in List View | ✅ PASS | "API Documentation" under Actions menu |
+| Button opens docs in new tab | ✅ PASS | Opens `/assets/itsm_core/scalar_docs.html` |
+
+### Files Modified
+- `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/scalar_docs.html` - Fixed data-url paths, HTML structure
+
+### Files Created (via Frappe)
+- Client Script: "Grafana Webhook Log - API Docs Button" (List View)
+
+### Verification Commands
+```bash
+# Verify Scalar UI loads
+curl -s http://127.0.0.1:8001/assets/itsm_core/scalar_docs.html | grep -c "scalar-api-reference"
+# Should return > 0
+
+# Verify openapi.json accessible
+curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001/assets/itsm_core/openapi.json
+# Expected: 200
+```
+
+**Status:** Scalar API Documentation fixed and integrated with Webhook Log. Phase 2.21 marked COMPLETE.
+
+---
+
+## Phase 2.22: Scalar API Documentation Rendering Fix & Button Placement Fix
+
+**Start Time:** 2026-10-23 13:00:00 EAT  
+**End Time:** 2026-10-23 13:30:00 EAT  
+**Status:** COMPLETE
+
+### Objective
+Fix the Scalar API documentation rendering (was showing raw JSON instead of Scalar UI) and correct the placement of the "API Documentation" button on the Grafana Webhook Log page to be a primary button in the list view header.
+
+### Fix Applied
+
+#### 1. Fix Scalar HTML Rendering (HIGH)
+**Issue:** The `scalar_docs.html` was rendering as raw JSON instead of the Scalar UI. Root causes:
+- `data-url` attribute used relative path `./openapi.json` which fails when served via Frappe's asset pipeline
+- Missing proper HTML5 boilerplate causing browser to treat as JSON
+
+**Fix Applied to `scalar_docs.html`:**
+- Changed `data-url` from `./openapi.json` to absolute Frappe asset path: `/assets/itsm_core/openapi.json`
+- Changed `href` for Raw OpenAPI JSON link from `openapi.json` to `/assets/itsm_core/openapi.json`
+- Verified proper HTML5 boilerplate with DOCTYPE, charset, viewport meta tags
+- Used official Scalar CDN script: `https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest`
+- Ensured script tag with `type="application/json"` and `data-url` loads before Scalar CDN script
+
+**Files Modified:**
+- `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/scalar_docs.html`
+
+#### 2. Fix Client Script Button Placement (MEDIUM)
+**Issue:** The "API Documentation" button was added to the "Actions" dropdown via a Client Script, but it needs to be a primary button in the list view header (next to the "Add Grafana Webhook Log" button).
+
+**Fix Applied to Client Script:**
+Updated the Client Script for "Grafana Webhook Log" DocType to use `listview.page.add_primary_action()` instead of `add_inner_button()`:
+- **DocType:** Grafana Webhook Log
+- **View:** List
+- **Method:** Uses `listview.page.add_primary_action()` for primary header button
+- **Action:** Opens `/assets/itsm_core/scalar_docs.html` in new tab
+- **Style:** Primary button in list view header
+
+**Client Script Code:**
+```javascript
+frappe.listview_settings['Grafana Webhook Log'] = {
+    onload: function(listview) {
+        if (listview.page && listview.page.add_primary_action) {
+            listview.page.add_primary_action('API Documentation', function() {
+                window.open('/assets/itsm_core/scalar_docs.html', '_blank');
+            });
+        }
+    }
+};
+```
+
+**Files Modified:**
+- Client Script: "Grafana Webhook Log - API Docs Button" (List View) - Updated script
+
+#### 3. Build and Verify
+- Ran `bench --site fastpay.local clear-cache`
+- Verified `scalar_docs.html` loads Scalar UI (not raw JSON)
+- Verified Scalar UI renders with all 6 endpoints, dark mode, interactive
+- Verified "API Documentation" button appears as primary button in list view header
+
+### Verification Results
+
+| Check | Status | Evidence |
+|-------|--------|----------|
+| Scalar UI renders (not raw JSON) | ✅ PASS | Browser shows full Scalar UI with sidebar, endpoints, dark mode |
+| data-url uses absolute asset path | ✅ PASS | `/assets/itsm_core/openapi.json` in script tag |
+| openapi.json accessible at asset path | ✅ PASS | HTTP 200, valid JSON |
+| Scalar UI zero JS errors | ✅ PASS | Browser console: 0 errors |
+| Client Script updated | ✅ PASS | Client Script uses `add_primary_action` |
+| Button appears in List View header | ✅ PASS | "API Documentation" as primary button next to "Add" |
+| Button opens docs in new tab | ✅ PASS | Opens `/assets/itsm_core/scalar_docs.html` |
+
+### Files Modified
+- `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/scalar_docs.html` - Fixed data-url paths, HTML structure
+- Client Script: "Grafana Webhook Log - API Docs Button" (List View) - Updated to use `add_primary_action`
+
+### Verification Commands
+```bash
+# Verify Scalar UI loads
+curl -s http://127.0.0.1:8001/assets/itsm_core/scalar_docs.html | grep -c "scalar-api-reference"
+# Should return > 0
+
+# Verify openapi.json accessible
+curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001/assets/itsm_core/openapi.json
+# Expected: 200
+```
+
+**Status:** Scalar API Documentation rendering fixed and button placement corrected. Phase 2.22 marked COMPLETE.
