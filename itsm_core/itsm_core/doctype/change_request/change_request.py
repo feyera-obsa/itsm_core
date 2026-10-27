@@ -46,7 +46,8 @@ class ChangeRequest(Document):
                 missing.append("Likelihood")
             if not self.rollback_plan:
                 missing.append("Rollback Plan")
-            if not self.validation_criteria:
+            # validation_criteria only mandatory for Normal
+            if self.change_type == "Normal" and not self.validation_criteria:
                 missing.append("Validation Criteria")
             if missing:
                 frappe.throw(
@@ -143,6 +144,20 @@ class ChangeRequest(Document):
             self.risk_level = "Low"
 
     def _lock_fields_after_approval(self):
+        """
+        Lock content fields after the Change Request reaches an approved/closed state.
+        
+        DECISION: Keep custom field locking instead of relying on Frappe's native submit locking.
+        REASON: The workflow maps ALL states to doc_status=0 (Draft). No state transitions
+        to doc_status=1 (Submitted), so Frappe's native submit locking (which only triggers
+        at docstatus=1) is NEVER activated. The custom locking is the ONLY protection
+        against post-approval content changes.
+        
+        The child table comparison uses stable identifiers (service + name) rather than
+        full row dict comparison, because child rows may not have stable names before
+        the parent is saved. We compare by (service, name) tuple which provides
+        deterministic ordering.
+        """
         if self.is_new():
             return
         old = self.get_doc_before_save()
@@ -161,17 +176,19 @@ class ChangeRequest(Document):
                     frappe.throw(
                         _("Field {0} is locked after approval").format(field)
                     )
-            
-            def get_sort_key(row):
-                return (row.get("name") or "") + (row.get("service") or "")
-            
+
+            # Compare child tables by stable signature (service + name)
+            def get_child_signature(row):
+                return (
+                    row.get("service") or "",
+                    row.get("name") or "",
+                )
+
             old_children = sorted(
-                [dict(c) for c in (old.affected_services or [])],
-                key=get_sort_key,
+                [get_child_signature(dict(c)) for c in (old.affected_services or [])],
             )
             new_children = sorted(
-                [dict(c) for c in (self.affected_services or [])],
-                key=get_sort_key,
+                [get_child_signature(dict(c)) for c in (self.affected_services or [])],
             )
             if old_children != new_children:
                 frappe.throw(
