@@ -7,6 +7,11 @@ from frappe import _
 from frappe.model.document import Document
 
 
+# Constants for Standard Change validation
+STANDARD_BLOCKED_TIERS = {"Critical"}  # Highest tier in Service Registry
+STANDARD_BLOCKED_CATEGORIES = {"Data"}  # Standard changes cannot be Data category
+
+
 class ChangeRequest(Document):
     """Change Request DocType controller for ERPNext v16."""
 
@@ -37,15 +42,20 @@ class ChangeRequest(Document):
         self._validate_standard_change()
 
     def _validate_mandatory_fields_by_change_type(self):
-        """Enforce mandatory fields for Normal and Emergency change types."""
+        """Enforce mandatory fields per change type."""
+        # rollback_plan is required for ALL change types (reqd=1 in JSON)
+        if not self.rollback_plan:
+            frappe.throw(
+                _("Rollback Plan is required for all change types."),
+                frappe.MandatoryError,
+            )
+
         if self.change_type in ("Normal", "Emergency"):
             missing = []
             if not self.impact:
                 missing.append("Impact")
             if not self.likelihood:
                 missing.append("Likelihood")
-            if not self.rollback_plan:
-                missing.append("Rollback Plan")
             # validation_criteria only mandatory for Normal
             if self.change_type == "Normal" and not self.validation_criteria:
                 missing.append("Validation Criteria")
@@ -58,47 +68,30 @@ class ChangeRequest(Document):
                 )
 
     def _validate_standard_change(self):
-        """Validate Standard change requirements."""
+        """Validate Standard change requirements (lean path, no template)."""
         if self.change_type != "Standard":
             return
 
-        # Standard changes require a template
-        if not self.change_template:
-            frappe.throw(
-                _("Standard changes require a valid Change Template."),
-                frappe.MandatoryError,
-            )
-
-        template = frappe.get_doc("Standard Change Template", self.change_template)
-        if not template.enabled:
-            frappe.throw(
-                _("Selected Change Template is not enabled."),
-                frappe.MandatoryError,
-            )
-
-        # All affected services must be in template's allowed_services
-        allowed_services = {row.service for row in template.allowed_services}
+        # Block if any affected service has the highest tier (Critical)
         for row in self.affected_services or []:
-            if row.service not in allowed_services:
+            svc = frappe.get_doc("Service Registry", row.service)
+            if svc.tier in STANDARD_BLOCKED_TIERS:
                 frappe.throw(
-                    _("Service {0} is not allowed for this Standard Change Template. "
-                      "Allowed services: {1}").format(
-                        row.service, ", ".join(sorted(allowed_services))
+                    _("Standard changes may not affect {0} tier services. "
+                      "Service {1} is tier {2}.").format(
+                        ", ".join(STANDARD_BLOCKED_TIERS), row.service, svc.tier
                     ),
                     frappe.MandatoryError,
                 )
 
-        # Standard may not touch a Critical tier service
-        for row in self.affected_services or []:
-            svc = frappe.get_doc("Service Registry", row.service)
-            if svc.tier == "Critical":
-                frappe.throw(
-                    _("Standard changes may not affect Critical tier services. "
-                      "Service {0} is tier Critical.").format(row.service),
-                    frappe.MandatoryError,
-                )
+        # Block Data category for Standard changes
+        if self.change_category in STANDARD_BLOCKED_CATEGORIES:
+            frappe.throw(
+                _("Standard changes may not have category '{0}'.").format(self.change_category),
+                frappe.MandatoryError,
+            )
 
-        # Set risk_level to Low for Standard
+        # Set risk_level to Low for Standard (since impact/likelihood are hidden/empty)
         self.risk_level = "Low"
 
     def on_submit(self):
@@ -132,6 +125,7 @@ class ChangeRequest(Document):
     def _derive_risk_level(self):
         score = self.computed_risk_score or 0
         if self.change_type == "Standard":
+            # Standard changes have impact/likelihood hidden -> risk_level = Low
             self.risk_level = "Low"
             return
         if score >= 12:
@@ -146,13 +140,13 @@ class ChangeRequest(Document):
     def _lock_fields_after_approval(self):
         """
         Lock content fields after the Change Request reaches an approved/closed state.
-        
+
         DECISION: Keep custom field locking instead of relying on Frappe's native submit locking.
         REASON: The workflow maps ALL states to doc_status=0 (Draft). No state transitions
         to doc_status=1 (Submitted), so Frappe's native submit locking (which only triggers
         at docstatus=1) is NEVER activated. The custom locking is the ONLY protection
         against post-approval content changes.
-        
+
         The child table comparison uses stable identifiers (service + name) rather than
         full row dict comparison, because child rows may not have stable names before
         the parent is saved. We compare by (service, name) tuple which provides
@@ -179,16 +173,19 @@ class ChangeRequest(Document):
 
             # Compare child tables by stable signature (service + name)
             def get_child_signature(row):
+                # row can be a Document object or dict
+                if hasattr(row, 'as_dict'):
+                    row = row.as_dict()
                 return (
                     row.get("service") or "",
                     row.get("name") or "",
                 )
 
             old_children = sorted(
-                [get_child_signature(dict(c)) for c in (old.affected_services or [])],
+                [get_child_signature(c) for c in (old.affected_services or [])],
             )
             new_children = sorted(
-                [get_child_signature(dict(c)) for c in (self.affected_services or [])],
+                [get_child_signature(c) for c in (self.affected_services or [])],
             )
             if old_children != new_children:
                 frappe.throw(

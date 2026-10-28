@@ -15,9 +15,17 @@
   {
    "chart_name": "Tickets Created, Last 30 Days",
    "label": "Tickets Created, Last 30 Days"
+  },
+  {
+   "chart_name": "Change Requests by Type",
+   "label": "Change Requests by Type"
+  },
+  {
+   "chart_name": "Changes per Month",
+   "label": "Changes per Month"
   }
  ],
- "content": "[{\"id\": \"cf047b5139\", \"type\": \"header\", \"data\": {\"text\": \"\\u003cspan class=\\\"h4\\\"\\u003e\\u003cb\\u003eIT Operations Dashboard\\u003c/b\\u003e\\u003c/span\\u003e\", \"col\": 12}}, {\"id\": \"e6c140acb0\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Open Tickets by Priority\", \"col\": 6}}, {\"id\": \"5d73da4093\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Open Tickets by Status\", \"col\": 6}}, {\"id\": \"629f4e3baa\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Change Requests by State\", \"col\": 6}}, {\"id\": \"234dff0a96\", \"type\": \"chart\", \"data\": {\"chart_name\": \"Tickets Created, Last 30 Days\", \"col\": 6}}, {\"id\": \"445f35d3dd\", \"type\": \"card\", \"data\": {\"card_name\": \"Change Management\", \"col\": 4}}, {\"id\": \"b2f6db6431\", \"type\": \"card\", \"data\": {\"card_name\": \"Incidents\", \"col\": 4}}, {\"id\": \"c2205188de\", \"type\": \"card\", \"data\": {\"card_name\": \"Topology\", \"col\": 4}}]",
+ "content": "[{\"data\": {\"col\": 12, \"text\": \"\\u003cspan class=\\\"h4\\\"\\u003e\\u003cb\\u003eIT Operations Dashboard\\u003c/b\\u003e\\u003c/span\\u003e\"}, \"id\": \"cf047b5139\", \"type\": \"header\"}, {\"data\": {\"chart_name\": \"Open Tickets by Priority\", \"col\": 6}, \"id\": \"e6c140acb0\", \"type\": \"chart\"}, {\"data\": {\"chart_name\": \"Open Tickets by Status\", \"col\": 6}, \"id\": \"5d73da4093\", \"type\": \"chart\"}, {\"data\": {\"chart_name\": \"Change Requests by State\", \"col\": 6}, \"id\": \"629f4e3baa\", \"type\": \"chart\"}, {\"data\": {\"chart_name\": \"Tickets Created, Last 30 Days\", \"col\": 6}, \"id\": \"234dff0a96\", \"type\": \"chart\"}, {\"data\": {\"chart_name\": \"Change Requests by Type\", \"col\": 6}, \"type\": \"chart\"}, {\"data\": {\"chart_name\": \"Changes per Month\", \"col\": 6}, \"type\": \"chart\"}, {\"data\": {\"chart_name\": \"Change Requests by Type\", \"col\": 6}, \"type\": \"chart\"}, {\"data\": {\"chart_name\": \"Changes per Month\", \"col\": 6}, \"type\": \"chart\"}, {\"data\": {\"chart_name\": \"Change Requests by Type\", \"col\": 6}, \"type\": \"chart\"}, {\"data\": {\"chart_name\": \"Changes per Month\", \"col\": 6}, \"type\": \"chart\"}]",
  "creation": "2026-10-21 17:25:53.329641",
  "custom_blocks": [],
  "docstatus": 0,
@@ -88,7 +96,7 @@
    "type": "Link"
   }
  ],
- "modified": "2026-10-23 11:12:47.488402",
+ "modified": "2026-10-28 19:26:41.099396",
  "modified_by": "Administrator",
  "module": "ITSM Core",
  "name": "IT Operations",
