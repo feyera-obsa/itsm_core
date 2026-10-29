@@ -211,6 +211,7 @@ def _process_alert(alert):
         }
 
     if status == "firing":
+        # Check if exact alert_instance_key exists (duplicate firing with same startsAt)
         if existing:
             # FIX #13: Atomic SQL increment of occurrence_count.
             frappe.db.sql(
@@ -236,7 +237,7 @@ def _process_alert(alert):
                 "occurrence_count": ticket.occurrence_count,
             }
 
-        # Flapping check: most recent ticket by fingerprint.
+        # Flapping check: most recent ticket by fingerprint (different startsAt).
         recent = _find_recent_by_fingerprint(fingerprint)
         if recent:
             recent_ticket = frappe.get_doc("HD Ticket", recent)
@@ -426,10 +427,11 @@ def replay_webhook(webhook_log_name):
 # ---------------------------------------------------------------------------
 
 @frappe.whitelist()
-def get_change_state(change_request_id, repo):
+def get_change_state(change_request_id, repo, environment=None):
     """CI gate: verify Change Request state and repo match.
 
     FIX #9: Fail closed if cr.repo is empty or differs from the request.
+    Optional environment parameter: if given, require it to equal the CR environment.
     """
     _require_role("CI Integration")
     cr = frappe.get_doc("Change Request", change_request_id)
@@ -444,6 +446,12 @@ def get_change_state(change_request_id, repo):
         return {
             "status": "error",
             "message": "Change Request repo does not match pipeline repo",
+        }
+    if environment and cr.environment != environment:
+        frappe.local.response.http_status_code = 403
+        return {
+            "status": "error",
+            "message": "Change Request environment does not match pipeline environment",
         }
     return {
         "change_request": cr.name,
@@ -509,15 +517,20 @@ def synthetic_alert():
     end-to-end delivery, not just endpoint liveness.
     """
     _require_role("System Manager")
+    starts_at = now()
     alert = {
-        "fingerprint": "synthetic-{0}".format(now()),
+        "fingerprint": "synthetic-{0}".format(starts_at),
         "status": "firing",
-        "startsAt": now(),
+        "startsAt": starts_at,
         "labels": {"service": "synthetic", "severity": "warning"},
         "annotations": {"summary": "Synthetic alert for ingestion path test"},
     }
     try:
-        return _process_alert(alert)
+        result = _process_alert(alert)
+        # Include the startsAt used so tests can properly resolve with exact match
+        if isinstance(result, dict):
+            result["startsAt"] = starts_at
+        return result
     except Exception:
         frappe.log_error(frappe.get_traceback(), "itsm_core: synthetic_alert failed")
         frappe.local.response.http_status_code = 500

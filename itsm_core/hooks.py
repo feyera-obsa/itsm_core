@@ -21,7 +21,7 @@ app_include_css = []
 
 # App icon for desk
 app_icon = "flag"
-app_logo = "/assets/itsm_core/images/italy.png"
+app_logo = "/assets/itsm_core/images/IT ops icon 4.png"
 
 fixtures = [
     {
@@ -67,28 +67,28 @@ fixtures = [
     {
         "dt": "Workflow State",
         "filters": [["name", "in", [
-                "Draft", "Risk Assessment", "Pending Approval",
-                "Approved for Deployment", "Implemented",
-                "Post-Implementation Review", "Closed", "Rejected"
+                "Draft", "Pending Approval", "Approved for Deployment", "Implemented",
+                "Post-Implementation Review", "Closed", "Rejected", "Cancelled"
             ]]],
     },
     {
         "dt": "Workflow Action Master",
         "filters": [["name", "in", [
-                "Submit for Approval", "Approve", "Reject",
-                "Implement", "Close", "Reopen"
+                "Submit for Approval", "Approve", "Reject / Request Changes",
+                "Reopen", "Emergency Approve", "Mark Implemented",
+                "Close", "Start Review", "Close Review", "Cancel Request"
             ]]],
     },
     {
-            "dt": "Dashboard Chart",
-            "filters": [["module", "=", "ITSM Core"]],
-        },
-    ]
+        "dt": "Dashboard Chart",
+        "filters": [["module", "=", "ITSM Core"]],
+    },
+]
 
 add_to_apps_screen = [
     {
         "name": "itsm_core",
-        "logo": "/assets/itsm_core/images/italy.png",
+        "logo": "/assets/itsm_core/images/IT ops icon 4.png",
         "title": "IT Operations",
         "route": "/desk/it-operations",
         "sequence_id": 60,

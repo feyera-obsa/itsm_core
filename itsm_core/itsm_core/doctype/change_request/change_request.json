@@ -4,7 +4,7 @@
     "module": "ITSM Core",
     "custom": 0,
     "autoname": "CRQ-.YYYY.-.#####",
-    "is_submittable": 1,
+    "is_submittable": 0,
     "track_changes": 1,
     "quick_entry": 1,
     "track_seen": 1,
@@ -105,6 +105,14 @@
             "reqd": 1,
             "in_list_view": 1,
             "in_standard_filter": 1
+        },
+        {
+            "fieldname": "security_impact",
+            "label": "Security Impact",
+            "fieldtype": "Select",
+            "options": "None expected\nLow\nNeeds security review",
+            "default": "None expected",
+            "reqd": 0
         },
         {
             "fieldname": "environment",
@@ -272,14 +280,12 @@
             "role": "Change Requester",
             "read": 1,
             "write": 1,
-            "create": 1,
-            "submit": 1
+            "create": 1
         },
         {
             "role": "Change Approver",
             "read": 1,
-            "write": 1,
-            "submit": 1
+            "write": 1
         },
         {
             "role": "Change Implementer",
@@ -289,17 +295,13 @@
         {
             "role": "Change Manager",
             "read": 1,
-            "write": 1,
-            "submit": 1,
-            "cancel": 1
+            "write": 1
         },
         {
             "role": "System Manager",
             "read": 1,
             "write": 1,
-            "create": 1,
-            "submit": 1,
-            "cancel": 1
+            "create": 1
         }
     ],
     "modified": "2026-10-28 14:00:00.000000"
