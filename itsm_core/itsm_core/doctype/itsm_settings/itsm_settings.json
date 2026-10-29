@@ -13,6 +13,14 @@
             "reqd": 1
         },
         {
+            "fieldname": "protected_priorities",
+            "label": "Protected Priorities (Not Auto-Resolved)",
+            "fieldtype": "Table",
+            "options": "ITSM Settings Protected Priority",
+            "reqd": 0,
+            "description": "HD Ticket Priorities that should NOT auto-resolve on Grafana recovery (Critical/High equivalent). Leave empty to use default: Urgent, Critical, High"
+        },
+        {
             "fieldname": "grafana_integration_user",
             "label": "Grafana Integration User",
             "fieldtype": "Link",
@@ -40,5 +48,6 @@
             "read": 1,
             "write": 1
         }
-    ]
+    ],
+    "modified": "2026-10-29 11:30:00.000000"
 }

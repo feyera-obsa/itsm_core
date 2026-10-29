@@ -1,0 +1,19 @@
+{
+    "doctype": "DocType",
+    "name": "ITSM Settings Protected Priority",
+    "module": "ITSM Core",
+    "custom": 0,
+    "istable": 1,
+    "fields": [
+        {
+            "fieldname": "priority",
+            "label": "Priority",
+            "fieldtype": "Link",
+            "options": "HD Ticket Priority",
+            "reqd": 1,
+            "in_list_view": 1
+        }
+    ],
+    "permissions": [],
+    "modified": "2026-10-29 11:30:00.000000"
+}

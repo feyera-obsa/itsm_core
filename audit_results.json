@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-10-29T07:31:36.075Z",
+  "tests": [
+    {
+      "name": "Workspace",
+      "status": "PASS"
+    },
+    {
+      "name": "Create Standard CR",
+      "status": "FAIL",
+      "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[data-fieldname=\"title\"]')\n    - locator resolved to 13 elements. Proceeding with the first one: <div title=\"\" data-fieldtype=\"Data\" data-fieldname=\"title\" data-original-title=\"Title\" class=\"form-group frappe-control input-max-width col-md-2\">…</div>\n    - fill(\"Test Standard CR  073149\")\n  - attempting fill action\n    2 × waiting for element to be visible, enabled and editable\n      - element is not visible\n    - retrying fill action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and editable\n      - element is not visible\n    - retrying fill action\n      - waiting 100ms\n    60 × waiting for element to be visible, enabled and editable\n       - element is not visible\n     - retrying fill action\n       - waiting 500ms\n"
+    },
+    {
+      "name": "Create Normal CR",
+      "status": "FAIL",
+      "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[data-fieldname=\"title\"]')\n    - locator resolved to 13 elements. Proceeding with the first one: <div title=\"\" data-fieldtype=\"Data\" data-fieldname=\"title\" data-original-title=\"Title\" class=\"form-group frappe-control input-max-width col-md-2\">…</div>\n    - fill(\"Test Normal CR  073225\")\n  - attempting fill action\n    2 × waiting for element to be visible, enabled and editable\n      - element is not visible\n    - retrying fill action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and editable\n      - element is not visible\n    - retrying fill action\n      - waiting 100ms\n    60 × waiting for element to be visible, enabled and editable\n       - element is not visible\n     - retrying fill action\n       - waiting 500ms\n"
+    },
+    {
+      "name": "Create Emergency CR",
+      "status": "FAIL",
+      "error": "page.fill: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator('[data-fieldname=\"title\"]')\n    - locator resolved to 13 elements. Proceeding with the first one: <div title=\"\" data-fieldtype=\"Data\" data-fieldname=\"title\" data-original-title=\"Title\" class=\"form-group frappe-control input-max-width col-md-2\">…</div>\n    - fill(\"Test Emergency CR  073302\")\n  - attempting fill action\n    2 × waiting for element to be visible, enabled and editable\n      - element is not visible\n    - retrying fill action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and editable\n      - element is not visible\n    - retrying fill action\n      - waiting 100ms\n    60 × waiting for element to be visible, enabled and editable\n       - element is not visible\n     - retrying fill action\n       - waiting 500ms\n"
+    }
+  ],
+  "passed": 1,
+  "failed": 3
+}

@@ -145,6 +145,22 @@ def _log_webhook_payload(alert, error_message):
         frappe.log_error("Failed to write Grafana Webhook Log", "itsm_core")
 
 
+def _get_protected_priorities():
+    """Get list of HD Ticket Priorities that should NOT auto-resolve on Grafana recovery.
+    Reads from ITSM Settings protected_priorities table; defaults to Urgent, Critical, High.
+    """
+    settings = _get_settings()
+    priorities = []
+    if settings.protected_priorities:
+        for row in settings.protected_priorities:
+            if row.priority:
+                priorities.append(row.priority)
+    if not priorities:
+        # Default: Urgent, Critical, High (Urgent is the highest in HD Ticket Priority)
+        priorities = ["Urgent", "Critical", "High"]
+    return priorities
+
+
 def _process_alert(alert):
     """Process a single Grafana alert and return a result dict."""
     fingerprint = alert.get("fingerprint")
@@ -167,8 +183,9 @@ def _process_alert(alert):
 
     if status == "resolved" and existing:
         ticket = frappe.get_doc("HD Ticket", existing)
-        # FIX #3: Critical/High are NOT auto-resolved.
-        if ticket.priority in ("Critical", "High"):
+        # FIX #3: Protected priorities are NOT auto-resolved.
+        protected_priorities = _get_protected_priorities()
+        if ticket.priority in protected_priorities:
             ticket.add_comment(
                 "Comment",
                 "Grafana recovered; awaiting human verification "
