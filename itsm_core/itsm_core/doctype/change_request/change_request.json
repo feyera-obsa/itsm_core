@@ -57,14 +57,16 @@
             "label": "Scheduled Start",
             "fieldtype": "Datetime",
             "width": "180px",
-            "reqd": 1
+            "reqd": 1,
+            "mandatory_depends_on": "eval:doc.change_type!='Emergency'"
         },
         {
             "fieldname": "scheduled_end",
             "label": "Scheduled End",
             "fieldtype": "Datetime",
             "width": "180px",
-            "reqd": 1
+            "reqd": 1,
+            "mandatory_depends_on": "eval:doc.change_type!='Emergency'"
         },
         {
             "fieldname": "scheduled_window",

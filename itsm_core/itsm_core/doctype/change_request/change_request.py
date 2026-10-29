@@ -19,9 +19,10 @@ class ChangeRequest(Document):
 		if self.change_type == "Emergency":
 			user = frappe.session.user
 			roles = frappe.get_roles(user)
-			if "Change Manager" not in roles and "CI Integration" not in roles:
+			# STEP 4: Only Change Manager can authorize Emergency (CI Integration removed)
+			if "Change Manager" not in roles:
 				frappe.throw(
-					_("Only a break-glass role (Change Manager / CI Integration) "
+					_("Only a break-glass role (Change Manager) "
 					  "may authorize an Emergency change."),
 					frappe.PermissionError,
 				)
@@ -40,6 +41,14 @@ class ChangeRequest(Document):
 		self._lock_fields_after_approval()
 		self._validate_mandatory_fields_by_change_type()
 		self._validate_standard_change()
+
+		# STEP 4: For Emergency changes, set scheduled_start/end to now if not provided
+		if self.change_type == "Emergency":
+			from frappe.utils import now
+			if not self.scheduled_start:
+				self.scheduled_start = now()
+			if not self.scheduled_end:
+				self.scheduled_end = now()
 
 	def _validate_mandatory_fields_by_change_type(self):
 		"""Enforce mandatory fields per change type."""
