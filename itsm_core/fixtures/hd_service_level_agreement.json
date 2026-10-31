@@ -7,19 +7,49 @@
     "priorities": [
       {
         "priority": "Urgent",
-        "response_by": 1,
-        "resolution_by": 4
+        "response_time": 3600,
+        "resolution_time": 14400,
+        "default_priority": 0
       },
       {
         "priority": "High",
-        "response_by": 4,
-        "resolution_by": 8
+        "response_time": 14400,
+        "resolution_time": 28800,
+        "default_priority": 1
       }
     ],
     "default_ticket_status": "Open",
-    "ticket_reopen_status": "Reopened",
+    "ticket_reopen_status": "Open",
     "status": "Active",
-    "modified": "2026-10-23 14:00:00.000000",
+    "holiday_list": "Default",
+    "support_and_resolution": [
+      {
+        "workday": "Monday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Tuesday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Wednesday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Thursday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Friday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      }
+    ],
+    "modified": "2026-10-29 14:00:00.000000",
     "name": "SLA - Critical",
     "docstatus": 0,
     "doctype": "HD Service Level Agreement"
@@ -32,19 +62,49 @@
     "priorities": [
       {
         "priority": "High",
-        "response_by": 4,
-        "resolution_by": 8
+        "response_time": 14400,
+        "resolution_time": 28800,
+        "default_priority": 1
       },
       {
         "priority": "Medium",
-        "response_by": 8,
-        "resolution_by": 24
+        "response_time": 28800,
+        "resolution_time": 86400,
+        "default_priority": 0
       }
     ],
     "default_ticket_status": "Open",
-    "ticket_reopen_status": "Reopened",
+    "ticket_reopen_status": "Open",
     "status": "Active",
-    "modified": "2026-10-23 14:00:00.000000",
+    "holiday_list": "Default",
+    "support_and_resolution": [
+      {
+        "workday": "Monday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Tuesday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Wednesday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Thursday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Friday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      }
+    ],
+    "modified": "2026-10-29 14:00:00.000000",
     "name": "SLA - High",
     "docstatus": 0,
     "doctype": "HD Service Level Agreement"
@@ -57,19 +117,49 @@
     "priorities": [
       {
         "priority": "Medium",
-        "response_by": 8,
-        "resolution_by": 24
+        "response_time": 28800,
+        "resolution_time": 86400,
+        "default_priority": 1
       },
       {
         "priority": "Low",
-        "response_by": 24,
-        "resolution_by": 48
+        "response_time": 86400,
+        "resolution_time": 172800,
+        "default_priority": 0
       }
     ],
     "default_ticket_status": "Open",
-    "ticket_reopen_status": "Reopened",
+    "ticket_reopen_status": "Open",
     "status": "Active",
-    "modified": "2026-10-23 14:00:00.000000",
+    "holiday_list": "Default",
+    "support_and_resolution": [
+      {
+        "workday": "Monday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Tuesday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Wednesday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Thursday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Friday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      }
+    ],
+    "modified": "2026-10-29 14:00:00.000000",
     "name": "SLA - Medium",
     "docstatus": 0,
     "doctype": "HD Service Level Agreement"
@@ -82,14 +172,43 @@
     "priorities": [
       {
         "priority": "Low",
-        "response_by": 24,
-        "resolution_by": 48
+        "response_time": 86400,
+        "resolution_time": 172800,
+        "default_priority": 1
       }
     ],
     "default_ticket_status": "Open",
-    "ticket_reopen_status": "Reopened",
+    "ticket_reopen_status": "Open",
     "status": "Active",
-    "modified": "2026-10-23 14:00:00.000000",
+    "holiday_list": "Default",
+    "support_and_resolution": [
+      {
+        "workday": "Monday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Tuesday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Wednesday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Thursday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      },
+      {
+        "workday": "Friday",
+        "start_time": "09:00:00",
+        "end_time": "17:00:00"
+      }
+    ],
+    "modified": "2026-10-29 14:00:00.000000",
     "name": "SLA - Low",
     "docstatus": 0,
     "doctype": "HD Service Level Agreement"

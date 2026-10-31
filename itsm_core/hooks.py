@@ -21,7 +21,7 @@ app_include_css = []
 
 # App icon for desk
 app_icon = "flag"
-app_logo = "/assets/itsm_core/images/IT ops icon 4.png"
+app_logo = "/assets/itsm_core/images/itsm_core.png"
 
 fixtures = [
     {
@@ -88,7 +88,7 @@ fixtures = [
 add_to_apps_screen = [
     {
         "name": "itsm_core",
-        "logo": "/assets/itsm_core/images/IT ops icon 4.png",
+        "logo": "/assets/itsm_core/images/itsm_core.png",
         "title": "IT Operations",
         "route": "/desk/it-operations",
         "sequence_id": 60,
