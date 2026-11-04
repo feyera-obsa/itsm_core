@@ -20,10 +20,10 @@ class ServiceRegistry(Document):
 
     def on_update(self):
         """Update linked tickets if service details change."""
-        if self.has_value_changed("runbook_url") or self.has_value_changed("service_owner"):
+        if self.has_value_changed("runbook_url"):
             frappe.db.sql("""
                 UPDATE `tabHD Ticket`
-                SET runbook_url = %s, service_owner = %s
+                SET runbook_url = %s
                 WHERE custom_service = %s
-            """, (self.runbook_url, self.service_owner, self.service_name))
+            """, (self.runbook_url, self.service_name))
             frappe.db.commit()
