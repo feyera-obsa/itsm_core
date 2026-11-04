@@ -328,7 +328,7 @@ Content-Type: application/json
 1. In Grafana: **Alerts & IRM → Alerting → Notification configuration → Contact points**.
 2. **Add contact point** → name it `itsm-webhook` → Integration: **Webhook** → URL: your middleware webhook endpoint (e.g. `https://middleware.example.com/webhook/grafana`).
 3. **Optional settings** (recommended):
-   - **Authentication Header Scheme:** `Bearer` (or custom) with **Authentication Header Credentials:** a shared secret token you validate in middleware (defense in depth, in addition to TLS).
+   - **Authentication Header Scheme:** `token` (Frappe native) with **Authentication Header Credentials:** `Authorization: token <api_key>:<api_secret>` (Frappe native API key/secret format).
    - **Max Alerts:** `50` — cap notification size; middleware should still iterate the `alerts` array.
    - **HMAC Signature:** enable with a shared secret; signature is sent in header `X-Grafana-Alerting-Signature` (default) — validate it on receipt to prevent spoofed alerts.
    - Leave **Disable resolved message** unchecked — you need `resolved` webhooks for auto-close (§3.6).

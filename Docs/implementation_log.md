@@ -302,7 +302,7 @@ Generate and deploy Scalar API documentation for the itsm_core app with OpenAPI 
 
 1. **Generated OpenAPI 3.0.3 Specification** (`openapi.json`):
    - Read `itsm_core/api.py` and extracted all 6 endpoints
-   - Defined security scheme: `ApiTokenAuth` (Bearer token)
+   - Defined security scheme: `ApiTokenAuth` (API Key: `token <api_key>:<api_secret>`)
    - Created schemas for all request/response bodies
    - Added examples for each endpoint
    - Saved to `/home/feye/frappe-bench/apps/itsm_core/itsm_core/public/openapi.json`
@@ -347,7 +347,7 @@ Generate and deploy Scalar API documentation for the itsm_core app with OpenAPI 
 | openapi.json valid | ✅ PASS | JSON syntax validated, served as application/json |
 | scalar_docs.html loads | ✅ PASS | HTTP 200, renders Scalar UI |
 | Scalar UI renders | ✅ PASS | All 6 endpoints visible, grouped by tags |
-| Authentication docs | ✅ PASS | ApiTokenAuth scheme with Bearer token |
+|| Authentication docs | ✅ PASS | ApiTokenAuth scheme with API Key (`token <api_key>:<api_secret>`) |
 | Request/response schemas | ✅ PASS | All models defined with examples |
 | Browser console | ✅ PASS | 0 JavaScript errors |
 

@@ -3,7 +3,7 @@
   "info": {
     "title": "itsm_core API",
     "version": "1.0.0",
-    "description": "itsm_core API endpoints for ERPNext v16 (HD Ticket).\n\nEndpoints:\n  POST /api/method/itsm_core.api.ingest_grafana_alert   (Grafana webhook)\n  POST /api/method/itsm_core.api.get_change_state         (CI gate)\n  POST /api/method/itsm_core.api.record_deployment         (CI evidence)\n  POST /api/method/itsm_core.api.replay_webhook            (System Manager replay)\n  GET  /api/method/itsm_core.api.heartbeat                 (allow_guest liveness)\n  POST /api/method/itsm_core.api.synthetic_alert           (System Manager test)\n\nAuthentication: API Token (Bearer) for dedicated service users.\nGrafana webhook uses `Grafana Integration` role.\nCI endpoints use `CI Integration` role.\nReplay and synthetic require `System Manager` role.\nHeartbeat allows guest access.",
+    "description": "itsm_core API endpoints for ERPNext v16 (HD Ticket).\\n\\nEndpoints:\\n  POST /api/method/itsm_core.api.ingest_grafana_alert   (Grafana webhook)\\n  POST /api/method/itsm_core.api.get_change_state         (CI gate)\\n  POST /api/method/itsm_core.api.record_deployment         (CI evidence)\\n  POST /api/method/itsm_core.api.replay_webhook            (System Manager replay)\\n  GET  /api/method/itsm_core.api.heartbeat                 (allow_guest liveness)\\n  POST /api/method/itsm_core.api.synthetic_alert           (System Manager test)\\n\\nAuthentication: API Token (token <api_key>:<api_secret>) for dedicated service users.\\nGrafana webhook uses `Grafana Integration` role.\\nCI endpoints use `CI Integration` role.\\nReplay and synthetic require `System Manager` role.\\nHeartbeat allows guest access.",
     "contact": {
       "name": "itsm_core",
       "url": "https://github.com/itsm_core"
@@ -18,10 +18,10 @@
   "components": {
     "securitySchemes": {
       "ApiTokenAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "API Token",
-        "description": "API Token authentication for dedicated service users. Include in Authorization header as `Bearer <token>`."
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "Frappe API Token authentication. Format: Authorization: token <api_key>:<api_secret>. Generate keys in ERPNext: My Settings \u2192 API Access."
       }
     },
     "schemas": {
