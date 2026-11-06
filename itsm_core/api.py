@@ -278,21 +278,38 @@ def _process_alert(alert):
             owner = svc.service_owner
 
         subject = _truncate_subject(summary or f"Grafana Alert: {fingerprint or 'unknown'}")
-        description_lines = [
-            "Grafana alert fired.",
-            "Summary: {0}".format(summary),
-            "Severity: {0}".format(severity),
-            "Fingerprint: {0}".format(fingerprint or "-"),
-            "Runbook: {0}".format(final_runbook or "-"),
-        ]
-        if service:
-            if service_exists:
-                description_lines.append("Service: {0}".format(service))
-                if owner:
-                    description_lines.append("Owner: {0}".format(owner))
-            else:
-                # FIX #3: Unregistered service -> ticket still created.
-                description_lines.append("Unregistered service: {0}".format(service))
+        
+        # Extract variables from the alert payload
+        labels = alert.get("labels", {})
+        annotations = alert.get("annotations", {})
+        summary = annotations.get("summary", "No Summary")
+        desc_text = annotations.get("description", "")
+        runbook = annotations.get("runbook_url", "")
+        service = labels.get("service", "Unknown")
+        severity = labels.get("severity", "Medium").title()
+        fingerprint = alert.get("fingerprint", "N/A")
+
+        # Build clean HTML description (using single-line concatenation to avoid raw newlines)
+        html_desc = '<div style="font-family: sans-serif; line-height: 1.6; color: #333;">'
+        html_desc += '<p style="font-weight: bold; font-size: 1.1em; color: #d9534f;">🚨 Grafana Alert Fired</p>'
+
+        if desc_text and desc_text not in ["Test", ""]:
+            html_desc += f'<p>{desc_text}</p>'
+
+        html_desc += '<hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">'
+        html_desc += '<h4 style="margin-top: 0; color: #555;">Alert Metadata</h4>'
+        html_desc += '<ul style="list-style-type: none; padding-left: 0;">'
+        html_desc += f'<li style="margin-bottom: 5px;"><b>Service:</b> {service}</li>'
+        html_desc += f'<li style="margin-bottom: 5px;"><b>Severity:</b> {severity}</li>'
+        html_desc += f'<li style="margin-bottom: 5px;"><b>Fingerprint:</b> <code style="background: #f4f5f7; padding: 2px 5px; border-radius: 3px;">{fingerprint}</code></li>'
+
+        if runbook:
+            html_desc += f'<li style="margin-bottom: 5px;"><b>Runbook:</b> <a href="{runbook}" target="_blank" style="color: #007bff; text-decoration: none;">View Documentation</a></li>'
+
+        html_desc += '</ul></div>'
+
+        # CRITICAL: Ensure no raw newlines slip into the final string
+        html_desc = html_desc.replace('\n', '')
 
         ticket = frappe.get_doc({
             "doctype": "HD Ticket",
@@ -303,7 +320,7 @@ def _process_alert(alert):
             "runbook_url": final_runbook,
             "custom_service": service if service_exists else None,
             "service_owner": owner,
-            "description": "\\n".join(description_lines),
+            "description": html_desc,
             "last_seen": _normalize_datetime(starts_at) or now(),
         })
         # FIX #2: Catch both DuplicateEntryError and UniqueValidationError.
